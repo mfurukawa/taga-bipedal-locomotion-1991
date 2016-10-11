@@ -29,6 +29,15 @@ int main() {
 
 	n = 2;
 
+	printf("\nA \t\t\t\t| b\n");
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			printf("%lf\t", a[i][j]);
+		}
+		printf("| %lf\n",b[i]);
+	}
+
+	// obtain solution and inverce matrix
 	gauss_jordan(2, a, b);
 
 	printf("\nsolution\n");
@@ -39,7 +48,7 @@ int main() {
 	printf("\ninverce matrix\n");
 	for (int i = 1; i <= n; i++) {
 		for (int j = 1; j <= n; j++) {
-			printf("%lf\t", i, a[i][j]);
+			printf("%lf\t", a[i][j]);
 		}
 		printf("\n");
 	}

@@ -79,4 +79,6 @@ int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]) {
 			}
 		}
 	}
+
+	return 1;
 }
