@@ -6,7 +6,7 @@
 // Masahiro Furukawa
 // m.furukawa@ist.osaka-u.ac.jp
 //
-// rev 0.0, Created,  Oct 4, 2016-
+// rev 0.0, Created,  Oct 12, 2016-
 
 #include <stdio.h>
 #include <math.h>
@@ -181,7 +181,7 @@ public:
 		x13 = x2 - l1 * s8 - (l2 / 2.0)*s14;
 
 		for (int i = 1; i <= 14; i++) xd[i] = 0.0;
-		for (int i = 1; i <= 12; i++) { ud[i] = vd[i] = u[i] = v[i] = 0.0; }
+		for (int i = 0; i <= 12; i++) { ud[i] = vd[i] = u[i] = v[i] = 0.0; }
 
 
 		// init P[14][8]
@@ -328,6 +328,22 @@ public:
 		Feed10 = a6 * (x11 - M_PI / 2.0)*h(Fg2) - a7 * (x14 - M_PI / 2.0)*h(Fg4) + a8 * xd11 * h(Fg2);
 		Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg2) - a7 * (M_PI / 2.0 - x11)*h(Fg4) + a8 * xd14 * h(Fg4);
 		Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg2) - a7 * (x11 - M_PI / 2.0)*h(Fg4) + a8 * xd14 * h(Fg4);
+
+		// neural rhythm generator - differentila equations
+
+		for (int i = 1; i <= 12;  i++)   
+			y[i] = f(u[i]);
+
+		for (int i = 1; i <= 12;  i++) {
+			ud[i] = -u[i];
+			for (int j = 1; j <= 12; j++)	
+				ud[i] += w[i][j]*y[j];
+
+			ud[i] = ud[i] - beta*v[i] + u[0] + Feed[i];
+			ud[i] /= tau[i];
+
+			vd[i] = (-v[i] + y[i]) / taud[i];
+		}
 
 
 	}
