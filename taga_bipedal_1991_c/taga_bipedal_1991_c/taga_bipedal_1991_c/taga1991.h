@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "gauss_jordan.h"
+
 #define a1 a[1]
 #define a2 a[2]
 #define a3 a[3]
@@ -87,6 +89,11 @@ public:
 	double Q[15];    // feedback etc
 	double C[9][15]; // constraint
 	double D[9];     // constraint
+	double CQ[9]; 
+	double DCQ[9]; 
+	double CP[9][9];
+	double Pinv_CP[15][9]; 
+	double inv_CP[8][GAUSS_JORDAN_MAXN + 10], b[8];
 	
 	double xr, yr, xl, yl, xr0, yr0, xl0, yl0 = 0;
 	double xr_d, yr_d, xl_d, yl_d = 0;
@@ -219,60 +226,12 @@ public:
 		C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
 
 		for (int i = 1; i <= 8;  i++)	D[i] = 0.0;
+
+		for (int j = 0; j < 8;  j++) b[j] = 1.0; // for inv_CP
 	};
 
 	void update(void) 
 	{
-		// P[14][8]
-		// The equations of motion of the bipedal musculo-skeletal system are derivered 
-		// using the Newton-Euler method. All variables and conventions correspond to 
-		// those shown in Fig.2 and Fig. 12.
-
-		P[5][1] = -l1*s5 / 2.0 / I1;
-		P[5][2] = -l1*c5 / 2.0 / I1;
-		P[5][5] = -l1*s5 / 2.0 / I1;
-		P[5][6] = -l1*c5 / 2.0 / I1;
-
-		P[8][3] = -l1*s8 / 2.0 / I1;
-		P[8][4] = -l1*c8 / 2.0 / I1;
-		P[8][7] = -l1*s8 / 2.0 / I1;
-		P[8][8] = -l1*c8 / 2.0 / I1;
-
-		P[11][5] = -l2*s11 / 2.0 / I1;
-		P[11][6] = -l2*c11 / 2.0 / I1;
-
-		P[14][7] = -l2*s14 / 2.0 / I1;
-		P[14][8] = -l2*c14 / 2.0 / I1;
-
-		// Q[14]
-
-		Q[4] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
-		Q[8] = (-b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14) + Tr2 + Tr4) / I1;
-		Q[11] = (-(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11) - Tr3 - Tr5) / I2;
-		Q[14] = (-(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14) - Tr4 - Tr6) / I2;
-
-		// C[8][14]
-		
-		C[1][5] = -l1*s5 / 2.0;
-		C[2][5] = -l1*c5 / 2.0;
-		C[3][1] = -l1*s8 / 2.0;
-		C[4][1] = -l1*c8 / 2.0;
-		C[5][5] = -l1*s5 / 2.0;		C[5][11] = -l2*s11 / 2.0;
-		C[6][5] = -l1*c5 / 2.0;		C[6][11] = -l2*c11 / 2.0;
-		C[7][8] = -l1*s8 / 2.0;		C[7][14] = -l2*s14 / 2.0;
-		C[8][8] = -l1*c8 / 2.0;		C[8][14] = -l2*c14 / 2.0;
-
-		// D[8][1]
-		D[1] =  l1*c5*xd52 / 2.0;
-		D[2] = -l1*s5*xd52 / 2.0;
-		D[3] =  l1*c8*xd82 / 2.0;
-		D[4] = -l1*s8*xd82 / 2.0;
-		D[5] =  (l1*c5*xd52 + l2*c11*xd112) / 2.0;
-		D[6] = -(l1*s5*xd52 + l2*s11*xd112) / 2.0;
-		D[7] =  (l1*c8*xd82 + l2*c14*xd142) / 2.0;
-		D[8] = -(l1*s8*xd82 + l2*s14*xd142) / 2.0;
-
-
 		// A. The equations of motion for the bipedal musculo-skeletal system
 
 		// Torques generated at each joint are given by:
@@ -329,7 +288,7 @@ public:
 		Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg2) - a7 * (M_PI / 2.0 - x11)*h(Fg4) + a8 * xd14 * h(Fg4);
 		Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg2) - a7 * (x11 - M_PI / 2.0)*h(Fg4) + a8 * xd14 * h(Fg4);
 
-		// neural rhythm generator - differentila equations
+		// neural rhythm generator - differential equations
 
 		for (int i = 1; i <= 12;  i++)   
 			y[i] = f(u[i]);
@@ -337,7 +296,7 @@ public:
 		for (int i = 1; i <= 12;  i++) {
 			ud[i] = -u[i];
 			for (int j = 1; j <= 12; j++)	
-				ud[i] += w[i][j]*y[j];
+				ud[i] += w[i][j] * y[j];
 
 			ud[i] = ud[i] - beta*v[i] + u[0] + Feed[i];
 			ud[i] /= tau[i];
@@ -346,7 +305,104 @@ public:
 		}
 
 
+
+		// P[14][8]
+		// The equations of motion of the bipedal musculo-skeletal system are derivered 
+		// using the Newton-Euler method. All variables and conventions correspond to 
+		// those shown in Fig.2 and Fig. 12.
+
+		P[5][1] = -l1*s5 / 2.0 / I1;
+		P[5][2] = -l1*c5 / 2.0 / I1;
+		P[5][5] = -l1*s5 / 2.0 / I1;
+		P[5][6] = -l1*c5 / 2.0 / I1;
+
+		P[8][3] = -l1*s8 / 2.0 / I1;
+		P[8][4] = -l1*c8 / 2.0 / I1;
+		P[8][7] = -l1*s8 / 2.0 / I1;
+		P[8][8] = -l1*c8 / 2.0 / I1;
+
+		P[11][5] = -l2*s11 / 2.0 / I1;
+		P[11][6] = -l2*c11 / 2.0 / I1;
+
+		P[14][7] = -l2*s14 / 2.0 / I1;
+		P[14][8] = -l2*c14 / 2.0 / I1;
+
+		// Q[14]
+
+		Q[4] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
+		Q[8] = (-b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14) + Tr2 + Tr4) / I1;
+		Q[11] = (-(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11) - Tr3 - Tr5) / I2;
+		Q[14] = (-(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14) - Tr4 - Tr6) / I2;
+
+		// C[8][14]
+		
+		C[1][5] = -l1*s5 / 2.0;
+		C[2][5] = -l1*c5 / 2.0;
+		C[3][1] = -l1*s8 / 2.0;
+		C[4][1] = -l1*c8 / 2.0;
+		C[5][5] = -l1*s5 / 2.0;		C[5][11] = -l2*s11 / 2.0;
+		C[6][5] = -l1*c5 / 2.0;		C[6][11] = -l2*c11 / 2.0;
+		C[7][8] = -l1*s8 / 2.0;		C[7][14] = -l2*s14 / 2.0;
+		C[8][8] = -l1*c8 / 2.0;		C[8][14] = -l2*c14 / 2.0;
+
+		// D[8][1]
+
+		D[1] =  l1*c5*xd52 / 2.0;
+		D[2] = -l1*s5*xd52 / 2.0;
+		D[3] =  l1*c8*xd82 / 2.0;
+		D[4] = -l1*s8*xd82 / 2.0;
+		D[5] =  (l1*c5*xd52 + l2*c11*xd112) / 2.0;
+		D[6] = -(l1*s5*xd52 + l2*s11*xd112) / 2.0;
+		D[7] =  (l1*c8*xd82 + l2*c14*xd142) / 2.0;
+		D[8] = -(l1*s8*xd82 + l2*s14*xd142) / 2.0;
+
+		// neuton-eular method - differential equations
+
+		// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
+		for (int k = 1; k<= 8 ; k++){ 				// row idx for CP
+			for (int j = 1; j<= 8 ; j++){			// col idx for CP
+				CP[k][j] = 0.0;  
+				for (int i = 1; i<= 14 ; i++) 
+					CP[k][j] += C[k][i]*P[i][j];
+			
+			inv_CP[k-1][j-1] = CP[k][j];			// prepare to calculate inverce matrix with gauss-jordan method
+			
+			b[j-1] = 1.0; 							// dummy (no use)
+			}
+		}
+
+		// inv_CP[8][8] = CP[8][8]^-1 | calculate inverce matrix with gauss-jordan method
+		gauss_jordan(8, inv_CP, b);
+
+		// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
+		for (int k = 1; k<= 14 ; k++){ 				// row idx for CP
+			for (int j = 1; j<= 8 ; j++){			// col idx for CP
+				Pinv_CP[k][j] = 0.0;  
+				for (int i = 1; i<= 14 ; i++) 
+					Pinv_CP[k][j] += P[k][i]*inv_CP[i-1][j-1]; // NOTICE!! inv_CP's index number is one lower than others!
+			}
+		}
+
+		// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
+		for (int j = 1; j<= 8 ; j++){ 				// row idx for CP
+				CQ[j] = 0.0;  
+				for (int i = 1; i<= 14 ; i++) 
+					CQ[j] += C[j][i]*Q[i];
+		}
+
+		// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
+		for (int i = 1; i<= 8 ; i++)
+				DCQ[i] = D[i] - CQ[i];  
+		
+		// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} 
+		for (int j = 1; j<= 14 ; j++){ 				// row idx for CP
+				xdd[j] = 0.0;  
+				for (int i = 1; i<= 8 ; i++) 
+					xdd[j] += Pinv_CP[j][i]*DCQ[i];
+		}
+
 	}
 
+	
 	~Taga1991() {}
 };
