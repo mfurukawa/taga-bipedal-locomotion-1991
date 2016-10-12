@@ -72,7 +72,7 @@
 
 class Taga1991 
 {
-public:
+private:
 
 	// A. The equations of motion for the bipedal musculo-skeletal system
 
@@ -136,8 +136,14 @@ public:
 	double h(double x) { if (x<0) return 0; else return 1; }
 	double yg(double x) { return 0; }
 
+public:
+	double dt;
+
 	Taga1991()  // constructor
 	{
+		// dt is time division in second
+		dt = 0.02; 
+
 		// D. Simlumation Parameters
 
 		// Musculo-skeletal system
@@ -232,6 +238,12 @@ public:
 
 	void update(void) 
 	{
+		// yi is the output of ith neuron 
+		// see also equation (6) 
+
+		for (int i = 1; i <= 12;  i++)   
+			y[i] = f(u[i]);
+
 		// A. The equations of motion for the bipedal musculo-skeletal system
 
 		// Torques generated at each joint are given by:
@@ -289,9 +301,6 @@ public:
 		Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg2) - a7 * (x11 - M_PI / 2.0)*h(Fg4) + a8 * xd14 * h(Fg4);
 
 		// neural rhythm generator - differential equations
-
-		for (int i = 1; i <= 12;  i++)   
-			y[i] = f(u[i]);
 
 		for (int i = 1; i <= 12;  i++) {
 			ud[i] = -u[i];
@@ -400,7 +409,69 @@ public:
 				for (int i = 1; i<= 8 ; i++) 
 					xdd[j] += Pinv_CP[j][i]*DCQ[i];
 		}
+	}
 
+	void next(void)
+	{
+		// Runge Kutta Method coefficient
+		double k1[15][2]; 
+		double k2[15][2];
+		double k3[15][2];
+		double k4[15][2];
+
+
+		// escape current state 
+		double x_esc[15], xd_esc[15], xdd_esc[15];
+		double u_esc[13], ud_esc[13];
+		double v_esc[13], vd_esc[13];
+
+		// Runge Kutta Method (4th order)
+	
+		// calc first coefficient k1
+		
+		for (int i = 1; i <= 14; i++) 
+		{
+			// calc first coefficient k1
+			k1[i][0] = dt * xd[i]; 	
+			k1[i][1] = dt * xdd[i];
+		
+			// escape current state
+			x_esc[i] = x[i];
+			xd_esc[i] = xd[i];
+			xdd_esc[i] = xdd[i];
+		}
+		
+		// calc second coefficient k2
+
+		// set next estimation state
+		for (int i = 1; i <= 14; i++) 
+		{
+			x[i]  += k1[i][0] / 2.0;
+			xd[i] += k1[i][1] / 2.0;
+		}
+		
+		// re-calcurate XDD
+		update();
+
+		for (int i = 1; i <= 14; i++) 
+		{
+			// calc second coefficient k2
+			k2[i][0] = dt * xd[i]; 	
+			k2[i][1] = dt * xdd[i];
+		
+			// restore state
+			x[i] = x_esc[i] ;
+			xd[i] = xd_esc[i];
+			xdd[i] = xdd_esc[i];
+		}
+		
+			
+// UNDER CONST 
+		
+			
+
+ 
+		
 	}
 
 	
