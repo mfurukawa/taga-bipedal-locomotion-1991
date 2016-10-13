@@ -108,7 +108,7 @@ Taga1991::Taga1991()
 	for (int j = 0; j < 8; j++) b[j] = 1.0; // for inv_CP
 }
 
-void Taga1991::update(void)
+int Taga1991::update(void)
 {
 	// yi is the output of ith neuron 
 	// see also equation (6) 
@@ -253,7 +253,7 @@ void Taga1991::update(void)
 	}
 
 	// inv_CP[8][8] = CP[8][8]^-1 | calculate inverce matrix with gauss-jordan method
-	gauss_jordan(8, inv_CP, b);
+	if (!gauss_jordan(8, inv_CP, b)) return 0;
 
 	// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
 	for (int k = 1; k <= 14; k++) { 				// row idx for CP
@@ -281,11 +281,13 @@ void Taga1991::update(void)
 		for (int i = 1; i <= 8; i++)
 			xdd[j] += Pinv_CP[j][i] * DCQ[i];
 	}
+
+	return 1;
 }
 
-void Taga1991::next(void)
+int Taga1991::next(void)
 {
-	update();	// calcurate XDD, ud, vd
+	if(!update()) return 0;	// calcurate XDD, ud, vd
 
 				// Runge Kutta Method (4th order)
 
@@ -307,7 +309,7 @@ void Taga1991::next(void)
 		xd[i] += k1[i][3] / 2.0;
 	}
 
-	update();	// re-calcurate XDD, ud, vd
+	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k2 |  u[13][14] are dummy
@@ -322,7 +324,7 @@ void Taga1991::next(void)
 		xd[i] = xd_esc[i] + k2[i][3] / 2.0;
 	}
 
-	update();	// re-calcurate XDD, ud, vd
+	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k3 |  u[13][14] are dummy
@@ -337,7 +339,7 @@ void Taga1991::next(void)
 		xd[i] = xd_esc[i] + k3[i][3];
 	}
 
-	update();	// re-calcurate XDD, ud, vd
+	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k4 |  u[13][14] are dummy
@@ -351,6 +353,20 @@ void Taga1991::next(void)
 		x[i] = x_esc[i] + (k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0;
 		xd[i] = x_esc[i] + (k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0;
 	}
+
+	return 1;
+}
+int Taga1991::dump(void) 
+{
+	printf("\nx[i]\t");		for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", x[i]);
+	printf("\nxd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xd[i]);
+	printf("\nxdd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xdd[i]);
+	printf("\nu[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", u[i]);
+	printf("\nud[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", ud[i]);
+	printf("\nv[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", v[i]);
+	printf("\nvd[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", vd[i]);
+	printf("\n");
+	return 1;
 }
 
 Taga1991::~Taga1991()

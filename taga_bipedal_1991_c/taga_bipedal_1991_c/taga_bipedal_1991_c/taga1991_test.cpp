@@ -12,6 +12,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "gauss_jordan.h"
 #include "taga1991.h"
 
@@ -19,8 +20,15 @@ int main() {
 
 	Taga1991 taga1991;
 
-	taga1991.next();
-
+	for (int i = 0; i < 100000; i++) 
+	{
+		taga1991.dump();
+	
+		if(!taga1991.next() ){ 
+			printf("\nsingular matrix !!!  [i] : %d\n",i); 
+			exit(0); 
+		}
+	}
 	return 0;
 }
 

@@ -12,6 +12,6 @@
 * http://www.yamamo10.jp/yamamoto/lecture/2006/5E/Linear_eauations/gaussj.pdf
 */
 
-#define GAUSS_JORDAN_MAXN 100
+#define GAUSS_JORDAN_MAXN 8
 
 int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]);

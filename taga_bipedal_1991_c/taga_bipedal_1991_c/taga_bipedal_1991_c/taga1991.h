@@ -147,7 +147,7 @@ private:
 	double u_esc[15], v_esc[15];
 	double x_esc[15], xd_esc[15], xdd_esc[15];
 
-	void update(void);
+	int update(void);
 
 public:
 	double dt;
@@ -155,5 +155,6 @@ public:
 	Taga1991();
 	~Taga1991();
 
-	void next(void);
+	int next(void);
+	int dump(void);
 };
