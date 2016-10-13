@@ -8,6 +8,8 @@
 //
 // rev 0.0, Created,  Oct 12, 2016-
 
+#define _USE_MATH_DEFINES
+
 #include <stdio.h>
 #include <math.h>
 
