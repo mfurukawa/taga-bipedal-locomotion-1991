@@ -112,11 +112,13 @@
   <ItemGroup>
     <ClInclude Include="calculation.h" />
     <ClInclude Include="gauss_jordan.h" />
+    <ClInclude Include="taga1991.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calculation.c" />
     <ClCompile Include="gauss_jordan.cpp" />
     <ClCompile Include="main_test.cpp" />
+    <ClCompile Include="taga1991.cpp" />
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

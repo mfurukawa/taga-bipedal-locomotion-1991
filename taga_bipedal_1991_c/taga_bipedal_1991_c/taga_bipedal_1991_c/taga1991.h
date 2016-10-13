@@ -426,45 +426,65 @@ public:
 		double v_esc[13], vd_esc[13];
 
 		// Runge Kutta Method (4th order)
-	
+		
+		update();	// calcurate XDD
+
 		// calc first coefficient k1
 		
-		for (int i = 1; i <= 14; i++) 
-		{
+		for (int i = 1; i <= 14; i++) {
 			// calc first coefficient k1
 			k1[i][0] = dt * xd[i]; 	
 			k1[i][1] = dt * xdd[i];
-		
-			// escape current state
+
+			// store current state
 			x_esc[i] = x[i];
 			xd_esc[i] = xd[i];
 			xdd_esc[i] = xdd[i];
-		}
-		
-		// calc second coefficient k2
 
-		// set next estimation state
-		for (int i = 1; i <= 14; i++) 
-		{
-			x[i]  += k1[i][0] / 2.0;
-			xd[i] += k1[i][1] / 2.0;
-		}
-		
-		// re-calcurate XDD
-		update();
-
-		for (int i = 1; i <= 14; i++) 
-		{
-			// calc second coefficient k2
-			k2[i][0] = dt * xd[i]; 	
-			k2[i][1] = dt * xdd[i];
-		
-			// restore state
-			x[i] = x_esc[i] ;
-			xd[i] = xd_esc[i];
+			// set next estimation state
+			x[i] = x_esc[i] + k1[i][0] / 2.0;
+			xd[i] = xd_esc[i] + k1[i][1] / 2.0;
 			xdd[i] = xdd_esc[i];
 		}
 		
+		update();	// re-calcurate XDD
+
+		for (int i = 1; i <= 14; i++){
+			// calc second coefficient k2
+			k2[i][0] = dt * xd[i];
+			k2[i][1] = dt * xdd[i];
+
+			// set next estimation state
+			x[i] = x_esc[i] + k2[i][0] / 2.0;
+			xd[i] = xd_esc[i] + k2[i][1] / 2.0;
+			xdd[i] = xdd_esc[i];
+		}
+
+		update();	// re-calcurate XDD
+
+		for (int i = 1; i <= 14; i++){
+			// calc second coefficient k3
+			k3[i][0] = dt * xd[i];
+			k3[i][1] = dt * xdd[i];
+
+			// set next estimation state
+			x[i] = x_esc[i] + k3[i][0];
+			xd[i] = xd_esc[i] + k3[i][1];
+			xdd[i] = xdd_esc[i];
+		}
+
+		update();	// re-calcurate XDD
+
+		for (int i = 1; i <= 14; i++) {
+			// calc second coefficient k4
+			k4[i][0] = dt * xd[i];
+			k4[i][1] = dt * xdd[i];
+
+			// update state
+			x[i] = x_esc[i] + (k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0;
+			xd[i] = x_esc[i] + (k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0;
+			xdd[i] = xdd_esc[i];
+		}
 			
 // UNDER CONST 
 		
