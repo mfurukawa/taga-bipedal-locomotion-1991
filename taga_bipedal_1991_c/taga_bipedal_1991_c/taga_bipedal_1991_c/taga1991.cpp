@@ -16,6 +16,11 @@ Taga1991::Taga1991()
 	// dt is time division in second
 	dt = 0.02;
 
+	// median parameters
+
+	xr = yr = xl = yl = xr0 = yr0 = xl0 = yl0 = 0.0;
+	xr_d = yr_d = xl_d = yl_d = 0.0;
+
 	// D. Simlumation Parameters
 
 	// Musculo-skeletal system
@@ -67,7 +72,6 @@ Taga1991::Taga1991()
 
 	for (int i = 1; i <= 14; i++) xd[i] = 0.0;
 	for (int i = 0; i <= 12; i++) { ud[i] = vd[i] = u[i] = v[i] = 0.0; }
-
 
 	// init P[14][8]
 
@@ -318,6 +322,10 @@ int Taga1991::next(void)
 
 				// Runge Kutta Method (4th order)
 
+		printf("\n\n [DEBUG] int Taga1991::next(void)  >  xd[14]\n\n");
+		for (int k = 1; k <= 14; k++)
+		  printf("%2.2lf\t", xd[k]);
+
 	for (int i = 1; i <= 14; i++) {
 		// calc first coefficient k1 |  u[13][14] are dummy
 		k1[i][0] = dt * ud[i];
@@ -385,12 +393,12 @@ int Taga1991::next(void)
 }
 int Taga1991::dump(void) 
 {
-	printf("\nx[i]\t");		for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", x[i]);
+	printf("\nx[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", x[i]);
 	printf("\nxd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xd[i]);
 	printf("\nxdd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xdd[i]);
-	printf("\nu[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", u[i]);
+	printf("\nu[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", u[i]);
 	printf("\nud[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", ud[i]);
-	printf("\nv[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", v[i]);
+	printf("\nv[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", v[i]);
 	printf("\nvd[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", vd[i]);
 	printf("\n");
 	return 1;

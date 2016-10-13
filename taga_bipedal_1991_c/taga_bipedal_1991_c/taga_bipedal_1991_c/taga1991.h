@@ -97,8 +97,8 @@ private:
 	double Pinv_CP[15][9]; 
 	double inv_CP[8][GAUSS_JORDAN_MAXN + 10], b[8];
 	
-	double xr, yr, xl, yl, xr0, yr0, xl0, yl0 = 0;
-	double xr_d, yr_d, xl_d, yl_d = 0;
+	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
+	double xr_d, yr_d, xl_d, yl_d;
 
 	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
 	double ud  [15];
@@ -122,7 +122,7 @@ private:
 	double l1, l2;
 	double I1, I2;
 	double b1, b2;
-	double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae = 75.0;
+	double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae;
 	
 	// neural rhythm generator
 
