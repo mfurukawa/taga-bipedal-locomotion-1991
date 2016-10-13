@@ -98,10 +98,10 @@ private:
 	double xr, yr, xl, yl, xr0, yr0, xl0, yl0 = 0;
 	double xr_d, yr_d, xl_d, yl_d = 0;
 
-	double u   [13]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
-	double ud  [13];
-	double v   [13]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-	double vd  [13];
+	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
+	double ud  [15];
+	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+	double vd  [15];
 	double tau [13]; // time constants of the inner state
 	double taud[13]; // the adaptation effect
 
@@ -135,6 +135,16 @@ private:
 	double f(double x) { if (x<0) return 0; else return x; } // max(0,x);
 	double h(double x) { if (x<0) return 0; else return 1; }
 	double yg(double x) { return 0; }
+
+	// Runge Kutta Method coefficient
+	double k1[15][4]; // [4] means twice diferentiated x+ u + v
+	double k2[15][4];
+	double k3[15][4];
+	double k4[15][4];
+	// escape current state 
+	double u_esc[15], v_esc[15];
+	double x_esc[15], xd_esc[15], xdd_esc[15];
+
 
 public:
 	double dt;
@@ -234,6 +244,7 @@ public:
 		for (int i = 1; i <= 8;  i++)	D[i] = 0.0;
 
 		for (int j = 0; j < 8;  j++) b[j] = 1.0; // for inv_CP
+
 	};
 
 	void update(void) 
@@ -413,85 +424,72 @@ public:
 
 	void next(void)
 	{
-		// Runge Kutta Method coefficient
-		double k1[15][2]; 
-		double k2[15][2];
-		double k3[15][2];
-		double k4[15][2];
-
-
-		// escape current state 
-		double x_esc[15], xd_esc[15], xdd_esc[15];
-		double u_esc[13], ud_esc[13];
-		double v_esc[13], vd_esc[13];
+		update();	// calcurate XDD, ud, vd
 
 		// Runge Kutta Method (4th order)
-		
-		update();	// calcurate XDD
 
-		// calc first coefficient k1
-		
 		for (int i = 1; i <= 14; i++) {
-			// calc first coefficient k1
-			k1[i][0] = dt * xd[i]; 	
-			k1[i][1] = dt * xdd[i];
-
+			// calc first coefficient k1 |  u[13][14] are dummy
+			k1[i][0] = dt * ud[i]; 		
+			k1[i][1] = dt * vd[i]; 		
+			k1[i][2] = dt * xd[i];		
+			k1[i][3] = dt * xdd[i];
 			// store current state
-			x_esc[i] = x[i];
+			u_esc[i] = u[i];			
+			v_esc[i] = v[i];			
+			x_esc[i] = x[i];			
 			xd_esc[i] = xd[i];
-			xdd_esc[i] = xdd[i];
-
 			// set next estimation state
-			x[i] = x_esc[i] + k1[i][0] / 2.0;
-			xd[i] = xd_esc[i] + k1[i][1] / 2.0;
-			xdd[i] = xdd_esc[i];
+			u[i] += k1[i][0] / 2.0;		
+			v[i] += k1[i][1] / 2.0;		
+			x[i] += k1[i][2] / 2.0;		
+			xd[i] += k1[i][3] / 2.0;
 		}
 		
-		update();	// re-calcurate XDD
+		update();	// re-calcurate XDD, ud, vd
 
 		for (int i = 1; i <= 14; i++){
-			// calc second coefficient k2
-			k2[i][0] = dt * xd[i];
+			// calc second coefficient k2 |  u[13][14] are dummy
+			k2[i][0] = dt * ud[i];		
+			k2[i][1] = dt * vd[i];		
+			k2[i][2] = dt * xd[i];		
 			k2[i][1] = dt * xdd[i];
-
 			// set next estimation state
-			x[i] = x_esc[i] + k2[i][0] / 2.0;
-			xd[i] = xd_esc[i] + k2[i][1] / 2.0;
-			xdd[i] = xdd_esc[i];
+			u[i] = u_esc[i] + k2[i][0] / 2.0;	
+			v[i] = v_esc[i] + k2[i][1] / 2.0;	
+			x[i] = x_esc[i] + k2[i][2] / 2.0;	
+			xd[i] = xd_esc[i] + k2[i][3] / 2.0;
 		}
 
-		update();	// re-calcurate XDD
+		update();	// re-calcurate XDD, ud, vd
 
 		for (int i = 1; i <= 14; i++){
-			// calc second coefficient k3
-			k3[i][0] = dt * xd[i];
-			k3[i][1] = dt * xdd[i];
-
+			// calc second coefficient k3 |  u[13][14] are dummy
+			k3[i][0] = dt * ud[i];
+			k3[i][1] = dt * vd[i];
+			k3[i][2] = dt * xd[i];
+			k3[i][3] = dt * xdd[i];
 			// set next estimation state
-			x[i] = x_esc[i] + k3[i][0];
-			xd[i] = xd_esc[i] + k3[i][1];
-			xdd[i] = xdd_esc[i];
+			u[i] = u_esc[i] + k3[i][0];
+			v[i] = v_esc[i] + k3[i][1];
+			x[i] = x_esc[i] + k3[i][2];
+			xd[i] = xd_esc[i] + k3[i][3];
 		}
 
-		update();	// re-calcurate XDD
+		update();	// re-calcurate XDD, ud, vd
 
 		for (int i = 1; i <= 14; i++) {
-			// calc second coefficient k4
-			k4[i][0] = dt * xd[i];
-			k4[i][1] = dt * xdd[i];
-
+			// calc second coefficient k4 |  u[13][14] are dummy
+			k4[i][0] = dt * ud[i];
+			k4[i][1] = dt * vd[i];
+			k4[i][2] = dt * xd[i];
+			k4[i][3] = dt * xdd[i];
 			// update state
-			x[i] = x_esc[i] + (k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0;
-			xd[i] = x_esc[i] + (k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0;
-			xdd[i] = xdd_esc[i];
-		}
-			
-// UNDER CONST 
-		
-			
-
- 
-		
+			u[i] = u_esc[i] + (k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0; // u[13][14] are dummy
+			v[i] = v_esc[i] + (k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0; // u[13][14] are dummy
+			x[i] = x_esc[i] + (k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0;
+			xd[i] = x_esc[i] + (k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0;
+		}	
 	}
 
 	
