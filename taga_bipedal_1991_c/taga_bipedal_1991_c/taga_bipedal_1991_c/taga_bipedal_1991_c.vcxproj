@@ -110,15 +110,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="calculation.h" />
     <ClInclude Include="gauss_jordan.h" />
     <ClInclude Include="taga1991.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="calculation.c" />
     <ClCompile Include="gauss_jordan.cpp" />
-    <ClCompile Include="gauss_jordan_test.cpp" />
     <ClCompile Include="taga1991.cpp" />
+    <ClCompile Include="taga1991_test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
