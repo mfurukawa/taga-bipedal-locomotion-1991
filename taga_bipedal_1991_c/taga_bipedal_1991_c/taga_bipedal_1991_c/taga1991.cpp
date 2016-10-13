@@ -208,6 +208,7 @@ int Taga1991::update(void)
 	P[14][7] = -l2*s14 / 2.0 / I1;
 	P[14][8] = -l2*c14 / 2.0 / I1;
 
+
 	// Q[14]
 
 	Q[4] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
@@ -237,6 +238,8 @@ int Taga1991::update(void)
 	D[7] = (l1*c8*xd82 + l2*c14*xd142) / 2.0;
 	D[8] = -(l1*s8*xd82 + l2*s14*xd142) / 2.0;
 
+	//printf("\n\n [DEBUG] int Taga1991::update(void)  CP[k][j]\n\n"); 
+	
 	// neuton-eular method - differential equations
 
 	// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
@@ -246,23 +249,47 @@ int Taga1991::update(void)
 			for (int i = 1; i <= 14; i++)
 				CP[k][j] += C[k][i] * P[i][j];
 
-			inv_CP[k - 1][j - 1] = CP[k][j];			// prepare to calculate inverce matrix with gauss-jordan method
+			inv_CP[k][j] = CP[k][j];			// prepare to calculate inverce matrix with gauss-jordan method
+			//printf("%2.2lf\t",CP[k][j]);
 
-			b[j - 1] = 1.0; 							// dummy (no use)
+			b[j - 1] = 1.0; 					// dummy (no use)
 		}
 	}
+
+		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  gauss_jordan(8, inv_CP, b)  >  CP[i][j]\n\n");
+		//for (int k = 1; k <= 8; k++)
+		//	for (int j = 1; j <= 8; j++)
+		//		printf("%2.2lf\t", inv_CP[k][j]);
 
 	// inv_CP[8][8] = CP[8][8]^-1 | calculate inverce matrix with gauss-jordan method
 	if (!gauss_jordan(8, inv_CP, b)) return 0;
 
+		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  P[14][8]\n\n");
+		//for (int k = 1; k <= 14; k++)
+		//	for (int j = 1; j <= 8; j++)
+		//		printf("%2.2lf\t", P[k][j]);
+		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  gauss_jordan(8, inv_CP, b)  >  inv_CP[i][j]\n\n");
+		//for (int k = 1; k <= 8; k++)  			
+		//	for (int j = 1; j <= 8; j++) 		
+		//		printf("%2.2lf\t", inv_CP[k][j]);
+
 	// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
-	for (int k = 1; k <= 14; k++) { 				// row idx for CP
+	for (int k = 1; k <= 14; k++) { 			// row idx for CP
 		for (int j = 1; j <= 8; j++) {			// col idx for CP
 			Pinv_CP[k][j] = 0.0;
-			for (int i = 1; i <= 14; i++)
-				Pinv_CP[k][j] += P[k][i] * inv_CP[i - 1][j - 1]; // NOTICE!! inv_CP's index number is one lower than others!
+			for (int i = 1; i <= 8; i++) {
+				/*printf("%2.2lf\t*\t", P[k][i]);
+				printf("%2.2lf\t=\t", inv_CP[i][j]);*/
+				Pinv_CP[k][j] += P[k][i] * inv_CP[i][j]; // NOTICE!! inv_CP's index number starts from '1'!
+			/*	printf("%2.2lf\n", Pinv_CP[k][j]);*/
+			}
 		}
 	}
+
+		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8]\n\n");
+		//for (int k = 1; k <= 14; k++)
+		//	for (int j = 1; j <= 8; j++)
+		//		printf("%2.2lf\t", Pinv_CP[k][j]);
 
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	for (int j = 1; j <= 8; j++) { 				// row idx for CP
