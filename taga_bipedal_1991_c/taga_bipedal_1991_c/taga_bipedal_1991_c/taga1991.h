@@ -95,7 +95,7 @@ private:
 	double DCQ[9]  ; 
 	double CP[9][9];
 	double Pinv_CP[15][9]; 
-	double inv_CP[8][GAUSS_JORDAN_MAXN + 10], b[8];
+	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
 	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
 	double xr_d, yr_d, xl_d, yl_d;
