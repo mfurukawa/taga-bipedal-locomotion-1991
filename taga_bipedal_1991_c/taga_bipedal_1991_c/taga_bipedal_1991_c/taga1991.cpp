@@ -8,12 +8,73 @@
 // rev 0.0, Created,  Oct 13, 2016-
 
 #include <stdio.h>
+#include <memory.h>
 #include "taga1991.h"
-#include <conio.h>
-
 
 Taga1991::Taga1991()
 {
+
+  // A. The equations of motion for the bipedal musculo-skeletal system
+
+  Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
+  Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
+
+  memset(&x[0],0x00,sizeof(x));
+  memset(&xd[0],0x00,sizeof(xd));
+  memset(&xdd[0],0x00,sizeof(xdd));
+  memset(&y[0],0x00,sizeof(y)); // the output of the i-th neuron. (6)
+
+  // Newton-Eular method
+  memset(&P[0][0],0x00,sizeof(P)); // position
+  memset(&Q[0],0x00,sizeof(Q));    // feedback etc
+  memset(&C[0][0],0x00,sizeof(C)); // constraint
+  memset(&D[0],0x00,sizeof(D));     // constraint
+  memset(&CQ[0],0x00,sizeof(CP)); 
+  memset(&DCQ[0],0x00,sizeof(DCQ)); 
+  memset(&CP[0][0],0x00,sizeof(CP));
+  memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
+  memset(&inv_CP[0][0],0x00,sizeof(inv_CP));
+  
+  xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0; xr0 = 0.0; yr0 = 0.0; xl0 = 0.0; yl0 = 0.0;
+  xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
+  
+memset(&u[0],0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
+memset(&ud  ,0x00,sizeof(ud));
+memset(&v   ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+memset(&vd  ,0x00,sizeof(vd));
+memset(&tau ,0x00,sizeof(tau)); // time constants of the inner state
+memset(&taud,0x00,sizeof(taud)); // the adaptation effect
+  
+
+// C. Feedback pathway
+
+// Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
+
+memset(&Feed,0x00,sizeof(Feed));
+
+// D. Simlumation Parameters
+
+// neural rhythm generator
+
+memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
+
+// feedback
+
+memset(&a,0x00,sizeof(a));
+
+// Runge Kutta Method coefficient
+memset(&k1[0][0],0x00,sizeof(k1)); // [4] means twice diferentiated x+ u + v
+ memset(&k2[0][0],0x00,sizeof(k2));
+memset(&k3[0][0],0x00,sizeof(k3));
+memset(&k4[0][0],0x00,sizeof(k4));
+// escape current state 
+memset(&u_esc[0],0x00,sizeof(u_esc)); 
+memset(&v_esc[0],0x00,sizeof(v_esc));
+memset(&x_esc[0],0x00,sizeof(x_esc)); 
+memset(&xd_esc[0],0x00,sizeof(xd_esc));
+memset(&xdd_esc[0],0x00,sizeof(xdd_esc));
+
+
 	// dt is time division in second
 	dt = 0.02;
 
@@ -395,3 +456,22 @@ int Taga1991::dump(void)
 Taga1991::~Taga1991()
 {
 }
+
+double Taga1991::f(double x)  
+{
+  if (x<0) return 0.0; // max(0,x);
+  else return x; 
+} 
+
+double Taga1991::h(double x) 
+{
+  if (x<0) return 0.0; 
+  else return 1.0; 
+}
+
+double Taga1991::yg(double x) 
+{
+  return 0.0; 
+}
+
+
