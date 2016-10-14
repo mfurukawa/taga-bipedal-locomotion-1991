@@ -19,6 +19,7 @@
 int main() {
 
 	Taga1991 taga1991;
+	double t = 0.0;
 
 	for (int i = 0; i < 100000; i++) 
 	{
@@ -26,6 +27,16 @@ int main() {
 			printf("\nsingular matrix !!!  [i] : %d\n",i); 
 			exit(0); 
 		}
+		printf("% 1.4lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\n", 
+			   t, 
+			   taga1991.x[1],
+			   taga1991.x[2],
+			   taga1991.x[3],
+			   taga1991.x[4],
+			   taga1991.x[5],
+			   taga1991.yr,
+			   taga1991.yl);
+		t += taga1991.dt;
 	}
 	return 0;
 }

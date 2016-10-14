@@ -81,7 +81,6 @@ private:
 	double Fg1, Fg2, Fg3, Fg4;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
 	double Tr1, Tr2, Tr3, Tr4, Tr5, Tr6;	// Torque
 
-	double x  [15];
 	double xd [15];
 	double xdd[15];
 	double y  [15]; // the output of the i-th neuron. (6)
@@ -97,7 +96,6 @@ private:
 	double Pinv_CP[15][9]; 
 	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
-	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
 	double xr_d, yr_d, xl_d, yl_d;
 
 	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
@@ -151,6 +149,8 @@ private:
 
 public:
 	double dt;
+	double x  [15];
+	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
 
 	Taga1991();
 	~Taga1991();
