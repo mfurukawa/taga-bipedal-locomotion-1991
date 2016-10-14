@@ -346,9 +346,9 @@ int Taga1991::update(void)
 		for (int j = 1; j <= 8; j++)
 		  printf("\t% 4.2e\t% 4.2e\t% 4.2e\n", DCQ[j], D[j], CQ[j]);
 
-	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} 
+	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
 	for (int j = 1; j <= 14; j++) { 				// row idx for CP
-		xdd[j] = 0.0;
+		xdd[j] = Q[j];
 		for (int i = 1; i <= 8; i++)
 			xdd[j] += Pinv_CP[j][i] * DCQ[i];
 	}
@@ -359,7 +359,6 @@ int Taga1991::update(void)
 		printf("\t % 4.2e", Pinv_CP[k][j]);
 	  printf("\n");
 	}
-
 
 	printf("\n\n [DEBUG] int Taga1991::update(void)  >  xdd[14]\n\n");
 	for (int k = 1; k <= 14; k++)
