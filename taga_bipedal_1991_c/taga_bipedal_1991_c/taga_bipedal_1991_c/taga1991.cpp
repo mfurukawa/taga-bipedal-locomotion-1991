@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "taga1991.h"
 
 Taga1991::Taga1991()
@@ -34,32 +35,32 @@ Taga1991::Taga1991()
   xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0; xr0 = 0.0; yr0 = 0.0; xl0 = 0.0; yl0 = 0.0;
   xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
   
-memset(&u[0],0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
-memset(&ud  ,0x00,sizeof(ud));
-memset(&v   ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-memset(&vd  ,0x00,sizeof(vd));
-memset(&tau ,0x00,sizeof(tau)); // time constants of the inner state
-memset(&taud,0x00,sizeof(taud)); // the adaptation effect
-// C. Feedback pathway
-// Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
-memset(&Feed,0x00,sizeof(Feed));
-// D. Simlumation Parameters
-// neural rhythm generator
-memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
-// feedback
-memset(&a,0x00,sizeof(a));
-// Runge Kutta Method coefficient
-memset(&k1[0][0],0x00,sizeof(k1)); // [4] means twice diferentiated x+ u + v
-memset(&k2[0][0],0x00,sizeof(k2));
-memset(&k3[0][0],0x00,sizeof(k3));
-memset(&k4[0][0],0x00,sizeof(k4));
-// escape current state 
-memset(&u_esc[0],0x00,sizeof(u_esc)); 
-memset(&v_esc[0],0x00,sizeof(v_esc));
-memset(&x_esc[0],0x00,sizeof(x_esc)); 
-memset(&xd_esc[0],0x00,sizeof(xd_esc));
-memset(&xdd_esc[0],0x00,sizeof(xdd_esc));
-
+  memset(&u[0],0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
+  memset(&ud  ,0x00,sizeof(ud));
+  memset(&v   ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+  memset(&vd  ,0x00,sizeof(vd));
+  memset(&tau ,0x00,sizeof(tau)); // time constants of the inner state
+  memset(&taud,0x00,sizeof(taud)); // the adaptation effect
+  // C. Feedback pathway
+  // Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
+  memset(&Feed,0x00,sizeof(Feed));
+  // D. Simlumation Parameters
+  // neural rhythm generator
+  memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
+  // feedback
+  memset(&a,0x00,sizeof(a));
+  // Runge Kutta Method coefficient
+  memset(&k1[0][0],0x00,sizeof(k1)); // [4] means twice diferentiated x+ u + v
+  memset(&k2[0][0],0x00,sizeof(k2));
+  memset(&k3[0][0],0x00,sizeof(k3));
+  memset(&k4[0][0],0x00,sizeof(k4));
+  // escape current state 
+  memset(&u_esc[0],0x00,sizeof(u_esc)); 
+  memset(&v_esc[0],0x00,sizeof(v_esc));
+  memset(&x_esc[0],0x00,sizeof(x_esc)); 
+  memset(&xd_esc[0],0x00,sizeof(xd_esc));
+  memset(&xdd_esc[0],0x00,sizeof(xdd_esc));
+  
 
 	// dt is time division in second
 	dt = 0.001;
@@ -251,11 +252,32 @@ int Taga1991::update(void)
 
 
 	// Q[14]
-
-	Q[4] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
+	Q[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
 	Q[8] = (-b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14) + Tr2 + Tr4) / I1;
 	Q[11] = (-(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11) - Tr3 - Tr5) / I2;
 	Q[14] = (-(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14) - Tr4 - Tr6) / I2;
+
+	printf("\n\tQ[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;\n\n");
+	printf("\tQ[5]      % 1.4e\n",Q[5]);
+	printf("\tb1        % 1.4e\n",b1);
+	printf("\t     x5 - M_PI / 2.0         % 1.4e\n",x5 - M_PI / 2.0);
+	printf("\tfabs(x5 - M_PI / 2.0)        % 1.4e\n",fabs(x5 - M_PI / 2.0));
+	printf("\tx5        % 1.4e\n",x5);
+	printf("\txd5       % 1.4e\n",xd5);
+	printf("\tb2        % 1.4e\n",b2);
+	printf("\tbk        % 1.4e\n",bk);
+	printf("\tf(x5-x11) % 1.4e\n",f(x5-x11));
+	printf("\txd5-xd11  % 1.4e\n",(xd5-xd11));
+	printf("\tx11       % 1.4e\n",x11);
+	printf("\txd11      % 1.4e\n",xd11);
+	printf("\th(x5-x11) % 1.4e\n",h(x5-x11));
+	printf("\tkk        % 1.4e\n",kk);
+	printf("\tTr1       % 1.4e\n",Tr1);
+	printf("\tTr3       % 1.4e\n",Tr3);
+	printf("\tI1        % 1.4e\n",I1);
+
+	printf("\n [DEBUG] int Taga1991::update(void)  >  Q[14]\n\n");
+	for (int k = 1; k <= 14; k++)		printf("\t% 4.2e\n", Q[k]);
 
 	// C[8][14]
 
@@ -295,22 +317,28 @@ int Taga1991::update(void)
 		}
 	}
 
-	printf("\n\n [DEBUG] int Taga1991::update(void) \n");
-	printf("\n\tCP[8][8]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 8; j++)	printf("\t%1.1e", CP[k][j]);	printf("\n");	}
-	printf("\n\tC[8][14]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 14; j++)	printf("\t%1.1e", C[k][j]);		printf("\n");	}
-	printf("\n\tP[14][8]\n\n");	for (int k = 1; k <= 14; k++){	for (int j = 1; j <= 8; j++)	printf("\t%1.1e", P[k][j]);		printf("\n");	}
+	printf("\n [DEBUG] int Taga1991::update(void) \n");
+	printf("\n\tP[14][8]\n\n");	for (int k = 1; k <= 14; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", P[k][j]);		printf("\n");	}
+	printf("\n\tC[8][14]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 14; j++)	printf("\t% 1.0e", C[k][j]);		printf("\n");	}
+	printf("\n\tCP[8][8]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", CP[k][j]);	printf("\n");	}
+	//	printf("\n\tinv_CP[8][8]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", inv_CP[k][j]);	printf("\n");	}
 
 	// inv_CP[8][8] = CP[8][8]^-1 | calculate inverce matrix with gauss-jordan method
 	if (!gauss_jordan(8, inv_CP, b)) return 0;
 
-		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  P[14][8]\n\n");
-		//for (int k = 1; k <= 14; k++)
-		//	for (int j = 1; j <= 8; j++)
-		//		printf("%4.2e\t", P[k][j]);
-		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  gauss_jordan(8, inv_CP, b)  >  inv_CP[i][j]\n\n");
-		//for (int k = 1; k <= 8; k++)  			
-		//	for (int j = 1; j <= 8; j++) 		
-		//		printf("%4.2e\t", inv_CP[k][j]);
+	printf("\n [DEBUG] int Taga1991::update(void)  >  gauss_jordan(8, inv_CP, b)  >  inv_CP[i][j]\n\n");
+	for (int k = 1; k <= 8; k++) {	 for (int j = 1; j <= 8; j++) 	printf("\t% 1.0e", inv_CP[k][j]); printf("\n"); }
+
+	printf("\n [DEBUG] int Taga1991::update(void)  >  inv_CP[8][8] * CP[8][8]\n\n");
+	for (int k = 1 ; k <= 8; k++){
+	  for (int j = 1; j <= 8; j++){
+		double tmp = 0.0;
+		for (int i = 1; i <= 8; i++)
+		  tmp += CP[k][i]*inv_CP[i][j];
+		printf("\t% 1.0e", tmp);
+	  }
+	  printf("\n");
+	}
 
 	// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
 	for (int k = 1; k <= 14; k++) { 			// row idx for CP
@@ -330,40 +358,51 @@ int Taga1991::update(void)
 		//	for (int j = 1; j <= 8; j++)
 		//		printf("%4.2e\t", Pinv_CP[k][j]);
 
+	printf("\n [DEBUG] CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) \n\n");
+
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	for (int j = 1; j <= 8; j++) { 				// row idx for CP
 		CQ[j] = 0.0;
-		for (int i = 1; i <= 14; i++)
-			CQ[j] += C[j][i] * Q[i];
+		for (int i = 1; i <= 14; i++){
+		  CQ[j] += C[j][i] * Q[i];
+		  printf("\t\tCQ[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, CQ[j], C[j][i] , Q[i]);
+		}
 	}
 
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
 
-	printf("\n\n [DEBUG] int Taga1991::update(void)  \n\n");
+	printf("\n [DEBUG] int Taga1991::update(void)  \n\n");
 		  printf("\tDCQ[8][1] = \tD[8][1]   - \tCQ[8][1] \n\n");
 		for (int j = 1; j <= 8; j++)
 		  printf("\t% 4.2e\t% 4.2e\t% 4.2e\n", DCQ[j], D[j], CQ[j]);
 
+		printf("\n [DEBUG] XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))\n\n");
+
 	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
 	for (int j = 1; j <= 14; j++) { 				// row idx for CP
 		xdd[j] = Q[j];
-		for (int i = 1; i <= 8; i++)
+		for (int i = 1; i <= 8; i++){
 			xdd[j] += Pinv_CP[j][i] * DCQ[i];
+			printf("\t\txdd[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, xdd[j], Pinv_CP[j][i] , DCQ[i]);
+		}
 	}
 
-	printf("\n\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8] \n\n");
+	printf("\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8] \n\n");
 	for (int k = 1; k <= 14; k++) {
 	  for (int j = 1; j <= 8; j++)
-		printf("\t % 4.2e", Pinv_CP[k][j]);
+		printf("\t% 1.0e", Pinv_CP[k][j]);
 	  printf("\n");
 	}
 
-	printf("\n\n [DEBUG] int Taga1991::update(void)  >  xdd[14]\n\n");
-	for (int k = 1; k <= 14; k++)
-	  printf("\t %+4.2e\n", xdd[k]);
+	//printf("\n\n [DEBUG] int Taga1991::update(void)  >  xdd[14]\n\n");
+	//for (int k = 1; k <= 14; k++)
+	//  printf("\t %+4.2e\n", xdd[k]);
 
+	printf("\n[DEBUG] return update()\n\n\n\n\n\n");
+
+	exit(1);
 	return 1;
 }
 
@@ -374,15 +413,17 @@ int Taga1991::next(void)
 		//for (int k = 1; k <= 14; k++) 
 		//	printf("\t%4.2e\t%4.2e\n", x[k], xd[k]);
 
+	printf("\n[DEBUG] just entered next()");
+	dump();
+
 	if(!update()) return 0;	// calcurate XDD, ud, vd	
 
-	printf("\n\n[DEBUG] int Taga1991::next(void)  >  x[14], xd[14] after update() dt:%4.2e\n\n", dt);
-	for (int k = 1; k <= 14; k++)
-	  printf("\tx[%d] %4.2e\t xd[%d] %4.2e\n", k, x[k], k, xd[k]);
+	printf("\n[DEBUG] after update before k1");
+	dump();
 
 	// Runge Kutta Method (4th order)
 	
-	printf("\n\n[DEBUG] int Taga1991::next(void)  >  k1[14][4]\n\n");
+	printf("\n\n[DEBUG] int Taga1991::next(void)  >  k1[14][4]\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
 
 	for (int i = 1; i <= 14; i++) {
 		// calc first coefficient k1 |  u[13][14] are dummy
@@ -408,10 +449,10 @@ int Taga1991::next(void)
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
-	printf("\n\n[DEBUG] after k1");
+	printf("\n[DEBUG] after k1");
 	dump();
 
-	printf("\n\n [DEBUG] int Taga1991::next(void)  >  k2[14][4]\n\n");
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k2[14][4]\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k2 |  u[13][14] are dummy
@@ -431,7 +472,10 @@ int Taga1991::next(void)
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
-	printf("\n\n [DEBUG] int Taga1991::next(void)  >  k3[14][4]\n\n");
+	printf("\n[DEBUG] after k2");
+	dump();
+
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k3[14][4]\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k3 |  u[13][14] are dummy
@@ -451,7 +495,10 @@ int Taga1991::next(void)
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
-	printf("\n\n [DEBUG] int Taga1991::next(void)  >  k2[14][4]\n\n");
+	printf("\n[DEBUG] after k3");
+	dump();
+
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k4[14][4]\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
 
 	for (int i = 1; i <= 14; i++) {
 		// calc second coefficient k4 |  u[13][14] are dummy
@@ -469,6 +516,9 @@ int Taga1991::next(void)
 		xd[i] = x_esc[i] + (k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0;
 	}
 
+	printf("\n[DEBUG] after k4");
+	dump();
+
 	printf("\n\n\n\n\n\n");
 
 	return 1;
@@ -479,11 +529,11 @@ int Taga1991::dump(void)
 
   printf("\n\tx[14]\t\txd[14]\t\txdd[14]\n\n");	
   for (int i = 1; i <= 14; i++)
- 	printf("\t % 4.2e\t % 4.2e\t % 4.2e\n", x[i], xd[i], xdd[i]);
+ 	printf("\t % 1.1e\t % 1.1e\t % 1.1e\n", x[i], xd[i], xdd[i]);
 
   printf("\n\tu[12]\t\tud[12]\t\tv[12]\t\tvd[12]\n\n");	
   for (int i = 1; i <= 12; i++)
- 	printf("\t% 4.2e\t% 4.2e\t % 4.2e\t% 4.2e\n", u[i], ud[i], v[i], vd[i]);
+ 	printf("\t% 1.1e\t% 1.1e\t % 1.1e\t% 1.1e\n", u[i], ud[i], v[i], vd[i]);
   return 1;
 }
 
