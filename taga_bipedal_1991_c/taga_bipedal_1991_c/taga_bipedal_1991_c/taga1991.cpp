@@ -402,7 +402,7 @@ int Taga1991::update(void)
 
 	printf("\n[DEBUG] return update()\n\n\n\n\n\n");
 
-	exit(1);
+	//exit(1);
 	return 1;
 }
 
