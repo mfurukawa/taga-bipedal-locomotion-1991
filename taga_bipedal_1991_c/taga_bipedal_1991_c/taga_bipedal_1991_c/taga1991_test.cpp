@@ -22,6 +22,7 @@ int main() {
 
 	for (int i = 0; i < 100000; i++) 
 	{
+	    printf("\n[DEBUG] int main()"); 
 		taga1991.dump();
 	
 		if(!taga1991.next() ){ 
