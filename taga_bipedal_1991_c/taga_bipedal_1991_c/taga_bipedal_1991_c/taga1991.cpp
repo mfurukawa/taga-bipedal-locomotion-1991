@@ -334,7 +334,7 @@ int Taga1991::update(void)
 	  for (int j = 1; j <= 8; j++){
 		double tmp = 0.0;
 		for (int i = 1; i <= 8; i++)
-		  tmp += CP[k][i]*inv_CP[i][j];
+		  tmp += inv_CP[k][i]*CP[i][j];
 		printf("\t% 1.0e", tmp);
 	  }
 	  printf("\n");
