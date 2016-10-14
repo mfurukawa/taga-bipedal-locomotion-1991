@@ -78,41 +78,41 @@ private:
 
 	// A. The equations of motion for the bipedal musculo-skeletal system
 
-	double Fg1, Fg2, Fg3, Fg4;				// Horizontal and vertical forces on the ankles. See Fig. 12. 
-	double Tr1, Tr2, Tr3, Tr4, Tr5, Tr6;	// Torque
+	double Fg1 = {}, Fg2 = {}, Fg3 = {}, Fg4 = {};				        // Horizontal and vertical forces on the ankles. See Fig. 12.
+	double Tr1 = {}, Tr2 = {}, Tr3 = {}, Tr4 = {}, Tr5 = {}, Tr6 = {};	// Torque
 
-	double x  [15];
-	double xd [15];
-	double xdd[15];
-	double y  [15]; // the output of the i-th neuron. (6)
+	double x  [15] = {};
+	double xd [15] = {};
+	double xdd[15] = {};
+	double y  [15] = {}; // the output of the i-th neuron. (6)
 
 	// Newton-Eular method
-	double P[15][9]; // position
-	double Q[15];    // feedback etc
-	double C[9][15]; // constraint
-	double D[9];     // constraint
-	double CQ[9]; 
-	double DCQ[9]; 
-	double CP[9][9];
-	double Pinv_CP[15][9]; 
-	double inv_CP[8][GAUSS_JORDAN_MAXN + 10], b[8];
+	double P[15][9] = {}; // position
+	double Q[15]    = {};    // feedback etc
+	double C[9][15] = {}; // constraint
+	double D[9]     = {};     // constraint
+	double CQ[9]    = {}; 
+	double DCQ[9]   = {}; 
+	double CP[9][9] = {};
+	double Pinv_CP[15][9] = {}; 
+	double inv_CP[8][GAUSS_JORDAN_MAXN + 10] = {}, b[8] = {};
 	
-	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
-	double xr_d, yr_d, xl_d, yl_d;
+	double xr = {}, yr = {}, xl = {}, yl = {}, xr0 = {}, yr0 = {}, xl0 = {}, yl0 = {};
+	double xr_d = {}, yr_d = {}, xl_d = {}, yl_d = {};
 
-	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
-	double ud  [15];
-	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-	double vd  [15];
-	double tau [13]; // time constants of the inner state
-	double taud[13]; // the adaptation effect
+	double u   [15] = {}; // the inner state of the i-th neuron. u0 is an external input with a constant rate
+	double ud  [15] = {};
+	double v   [15] = {}; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+	double vd  [15] = {};
+	double tau [13] = {}; // time constants of the inner state
+	double taud[13] = {}; // the adaptation effect
 
 
 	// C. Feedback pathway
 
 	// Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
 
-	double Feed[13];
+	double Feed[13] = {};
 
 	// D. Simlumation Parameters
 
@@ -127,25 +127,25 @@ private:
 	// neural rhythm generator
 
 	double beta;
-	double w[13][13];  // a connecting weight
+	double w[13][13] = {};  // a connecting weight
 	double w_fe, w_rl, w_hka;
 
 	// feedback
 
 	double a[9];
 
-	double f(double x) { if (x<0) return 0; else return x; } // max(0,x);
-	double h(double x) { if (x<0) return 0; else return 1; }
-	double yg(double x) { return 0; }
+	double f(double x) { if (x<0) return 0.0; else return x; } // max(0,x);
+	double h(double x) { if (x<0) return 0.0; else return 1.0; }
+	double yg(double x) { return 0.0; }
 
 	// Runge Kutta Method coefficient
-	double k1[15][4]; // [4] means twice diferentiated x+ u + v
-	double k2[15][4];
-	double k3[15][4];
-	double k4[15][4];
+	double k1[15][4] = {}; // [4] means twice diferentiated x+ u + v
+	double k2[15][4] = {};
+	double k3[15][4] = {};
+	double k4[15][4] = {};
 	// escape current state 
-	double u_esc[15], v_esc[15];
-	double x_esc[15], xd_esc[15], xdd_esc[15];
+	double u_esc[15] = {}, v_esc[15] = {};
+	double x_esc[15] = {}, xd_esc[15] = {}, xdd_esc[15] = {};
 
 	int update(void);
 

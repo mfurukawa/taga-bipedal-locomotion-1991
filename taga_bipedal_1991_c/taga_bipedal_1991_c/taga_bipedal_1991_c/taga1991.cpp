@@ -9,17 +9,13 @@
 
 #include <stdio.h>
 #include "taga1991.h"
+#include <conio.h>
 
 
 Taga1991::Taga1991()
 {
 	// dt is time division in second
 	dt = 0.02;
-
-	// median parameters
-
-	xr = yr = xl = yl = xr0 = yr0 = xl0 = yl0 = 0.0;
-	xr_d = yr_d = xl_d = yl_d = 0.0;
 
 	// D. Simlumation Parameters
 
@@ -41,10 +37,6 @@ Taga1991::Taga1991()
 	tau[5] = tau[6] = tau[7] = tau[8] = tau[9] = tau[10] = tau[11] = tau[12] = 0.025;
 	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
 	beta = 2.5;
-
-	for (int i = 1; i <= 12; i++)
-		for (int j = 1; j <= 12; j++)
-			w[i][j] = 0.0;
 
 	w[1][2] = w[2][1] = w[3][4] = w[4][3] = w[5][6] = w[6][5] = w[7][8] = w[8][7] = w[9][10] = w[10][9] = w[11][12] = w[12][11] = w_fe = -2.0;
 	w[1][3] = w[3][1] = w[2][4] = w[4][2] = w_rl = -1.0;
@@ -69,13 +61,8 @@ Taga1991::Taga1991()
 	x10 = x2 - l1 * s5 - (l2 / 2.0)*s11;
 	x12 = l1 * c8 + (l2 / 2.0)*c14;
 	x13 = x2 - l1 * s8 - (l2 / 2.0)*s14;
-
-	for (int i = 1; i <= 14; i++) xd[i] = 0.0;
-	for (int i = 0; i <= 12; i++) { ud[i] = vd[i] = u[i] = v[i] = 0.0; }
-
+	
 	// init P[14][8]
-
-	for (int i = 1; i <= 14; i++)	for (int j = 1; j <= 8; j++)	P[i][j] = 0.0;
 
 	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
 	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
@@ -94,22 +81,14 @@ Taga1991::Taga1991()
 
 	// init Q[14]
 
-	for (int i = 1; i <= 14; i++)	Q[i] = 0.0;
-
 	Q[2] = Q[4] = Q[7] = Q[10] = Q[13] = -g;
 	Q[9] = Fg1 / m2;
 	Q[9] = Fg3 / m2;
 
 	// init C[8][14]
 
-	for (int i = 1; i <= 8; i++)	for (int j = 1; j <= 14; j++)	C[i][j] = 0.0;
-
 	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4] = C[7][6] = C[8][7] = 1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
-
-	for (int i = 1; i <= 8; i++)	D[i] = 0.0;
-
-	for (int j = 0; j < 8; j++) b[j] = 1.0; // for inv_CP
 }
 
 int Taga1991::update(void)
@@ -318,13 +297,18 @@ int Taga1991::update(void)
 
 int Taga1991::next(void)
 {
-	if(!update()) return 0;	// calcurate XDD, ud, vd
+	
+		//printf("\n\n [DEBUG] int Taga1991::next(void)  >  x[14], xd[14] before update()\n\n");
+		//for (int k = 1; k <= 14; k++) 
+		//	printf("\t%2.2lf\t%2.2lf\n", x[k], xd[k]);
 
-				// Runge Kutta Method (4th order)
+	if(!update()) return 0;	// calcurate XDD, ud, vd	
 
-		printf("\n\n [DEBUG] int Taga1991::next(void)  >  xd[14]\n\n");
+		printf("\n\n [DEBUG] int Taga1991::next(void)  >  x[14], xd[14] after update() dt:%2.2lf\n\n", dt);
 		for (int k = 1; k <= 14; k++)
-		  printf("%2.2lf\t", xd[k]);
+			printf("\t%2.2lf\t%2.2lf\n", x[k], xd[k]);
+
+		// Runge Kutta Method (4th order)
 
 	for (int i = 1; i <= 14; i++) {
 		// calc first coefficient k1 |  u[13][14] are dummy
@@ -344,6 +328,10 @@ int Taga1991::next(void)
 		xd[i] += k1[i][3] / 2.0;
 	}
 
+		printf("\n\n [DEBUG] int Taga1991::next(void)  >  x[14], xd[14] after k1\n\n");
+		for (int k = 1; k <= 14; k++)
+			printf("\t%2.2lf\t%2.2lf\n", x[k], xd[k]);
+
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
@@ -351,7 +339,7 @@ int Taga1991::next(void)
 		k2[i][0] = dt * ud[i];
 		k2[i][1] = dt * vd[i];
 		k2[i][2] = dt * xd[i];
-		k2[i][1] = dt * xdd[i];
+		k2[i][3] = dt * xdd[i];
 		// set next estimation state
 		u[i] = u_esc[i] + k2[i][0] / 2.0;
 		v[i] = v_esc[i] + k2[i][1] / 2.0;
@@ -393,12 +381,12 @@ int Taga1991::next(void)
 }
 int Taga1991::dump(void) 
 {
-	printf("\nx[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", x[i]);
+	printf("\nx[i]\t");		for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", x[i]);
 	printf("\nxd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xd[i]);
 	printf("\nxdd[i]\t");	for (int i = 1; i <= 14; i++) 	printf("%2.2lf\t", xdd[i]);
-	printf("\nu[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", u[i]);
+	printf("\nu[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", u[i]);
 	printf("\nud[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", ud[i]);
-	printf("\nv[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", v[i]);
+	printf("\nv[i]\t");		for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", v[i]);
 	printf("\nvd[i]\t");	for (int i = 1; i <= 12; i++) 	printf("%2.2lf\t", vd[i]);
 	printf("\n");
 	return 1;
