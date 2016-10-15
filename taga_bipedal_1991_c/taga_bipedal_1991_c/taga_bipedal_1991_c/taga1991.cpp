@@ -34,7 +34,7 @@ Taga1991::Taga1991()
   memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
   memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
   
-  xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0; xr0 = 0.0; yr0 = 0.0; xl0 = 0.0; yl0 = 0.0;
+  xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0;
   xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
   
   memset(&u[0],0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
@@ -65,7 +65,9 @@ Taga1991::Taga1991()
   
 
 	// dt is time division in second
-	dt = 0.001;
+	dt = 0.002;
+
+	u[0] = 5.5; // Fig 5A
 
 	// D. Simlumation Parameters
 
@@ -112,6 +114,11 @@ Taga1991::Taga1991()
 	x12 = l1 * c8 + (l2 / 2.0)*c14;
 	x13 = x2 - l1 * s8 - (l2 / 2.0)*s14;
 	
+	xr = xr0 = x9 + (l2 / 2.0)*c11;
+	yr = yr0 = x10 + (l2 / 2.0)*s11;
+	xl = xl0 = x12 + (l2 / 2.0)*c14;
+	yl = yl0 = x13 + (l2 / 2.0)*s14;
+
 	// init P[14][8]
 
 	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
@@ -139,6 +146,8 @@ Taga1991::Taga1991()
 
 	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4] = C[7][6] = C[8][7] = 1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
+
+
 }
 
 int Taga1991::update(void)
@@ -169,6 +178,11 @@ int Taga1991::update(void)
 	yr = x10 + (l2 / 2.0)*s11;
 	xl = x12 + (l2 / 2.0)*c14;
 	yl = x13 + (l2 / 2.0)*s14;
+
+	xr_d = xd9 - (l2 / 2.0)*s11*xd11;
+	yr_d = xd10 + (l2 / 2.0)*c11*xd11;
+	xl_d = xd12 - (l2 / 2.0)*s14*xd14;
+	yl_d = xd13 + (l2 / 2.0)*c14*xd14;
 
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
@@ -583,7 +597,7 @@ double Taga1991::f(double x)
 
 double Taga1991::h(double x) 
 {
-  if (x<0) return 0.0; 
+  if (x<=0) return 0.0; 
   else return 1.0; 
 }
 

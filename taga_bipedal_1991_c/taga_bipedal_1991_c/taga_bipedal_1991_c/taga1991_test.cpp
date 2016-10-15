@@ -27,7 +27,7 @@ int main() {
 			printf("\nsingular matrix !!!  [i] : %d\n",i); 
 			exit(0); 
 		}
-		printf("% 1.4lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\n", 
+		printf("% 1.4lf,% 3.2lf,% 3.2lf,% 3.2lf,% 3.2lf,% 3.2lf,% 3.2lf,% 3.2lf\n", 
 			   t, 
 			   taga1991.u[1],
 			   taga1991.u[2],

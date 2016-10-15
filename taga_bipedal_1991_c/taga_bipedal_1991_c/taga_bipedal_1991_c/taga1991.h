@@ -54,7 +54,11 @@
 
 #define xd5 xd[5]
 #define xd8 xd[8]
+#define xd9 xd[9]
+#define xd10 xd[10]
 #define xd11 xd[11]
+#define xd12 xd[12]
+#define xd13 xd[13]
 #define xd14 xd[14]
 
 #define xd52 xd[5]*xd[5]
@@ -71,6 +75,11 @@
 #define c8  cos(x8)
 #define c11 cos(x11)
 #define c14 cos(x14)
+
+#define sd11 sin(xd11)
+#define sd14 sin(xd14)
+#define cd11 cos(xd11)
+#define cd14 cos(xd14)
 
 class Taga1991 
 {
