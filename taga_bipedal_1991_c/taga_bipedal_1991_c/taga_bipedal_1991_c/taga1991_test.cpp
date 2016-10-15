@@ -29,13 +29,13 @@ int main() {
 		}
 		printf("% 1.4lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\t% 3.2lf\n", 
 			   t, 
-			   taga1991.x[1],
-			   taga1991.x[2],
-			   taga1991.x[3],
-			   taga1991.x[4],
-			   taga1991.x[5],
-			   taga1991.yr,
-			   taga1991.yl);
+			   taga1991.u[1],
+			   taga1991.u[2],
+			   taga1991.u[3],
+			   taga1991.u[4],
+			   taga1991.u[5],
+			   taga1991.v[1],
+			   taga1991.v[2]);
 		t += taga1991.dt;
 	}
 	return 0;
