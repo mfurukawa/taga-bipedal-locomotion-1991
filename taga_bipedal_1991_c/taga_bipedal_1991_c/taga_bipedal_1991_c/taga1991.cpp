@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "taga1991.h"
 
-// #define __DUMP_MATRIX__TAGA1991__
+//#define __DUMP_MATRIX__TAGA1991__
 
 Taga1991::Taga1991()
 {
@@ -37,15 +37,15 @@ Taga1991::Taga1991()
   xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0;
   xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
   
-  memset(&u[0],0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
-  memset(&ud  ,0x00,sizeof(ud));
-  memset(&v   ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-  memset(&vd  ,0x00,sizeof(vd));
-  memset(&tau ,0x00,sizeof(tau)); // time constants of the inner state
-  memset(&taud,0x00,sizeof(taud)); // the adaptation effect
+  memset(&u[0] ,0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
+  memset(&ud[0],0x00,sizeof(ud));
+  memset(&v[0] ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+  memset(&vd[0],0x00,sizeof(vd));
+  memset(&tau[0],0x00,sizeof(tau)); // time constants of the inner state
+  memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
   // C. Feedback pathway
   // Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
-  memset(&Feed,0x00,sizeof(Feed));
+  memset(&Feed[0],0x00,sizeof(Feed));
   // D. Simlumation Parameters
   // neural rhythm generator
   memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
@@ -65,7 +65,7 @@ Taga1991::Taga1991()
   
 
 	// dt is time division in second
-	dt = 0.002;
+	dt = 0.0005;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -275,7 +275,6 @@ int Taga1991::update(void)
 
 	P[14][7] = -l2*s14 / 2.0 / I1;
 	P[14][8] = -l2*c14 / 2.0 / I1;
-
 
 	// Q[14]
 	Q[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
@@ -569,6 +568,13 @@ int Taga1991::next(void)
 
 	printf("\n\n\n\n\n\n");
 #endif
+
+	// regulate cyclic data
+	if(x5 >  M_PI){ x5 -= ((double)int((x5-M_PI)  /2.0/M_PI))*2.0*M_PI;printf("5-");}	if(x5  < -M_PI){ x5 += ((double)int((x5+M_PI) / 2.0/M_PI))*2.0*M_PI;printf("5+");}
+	if(x8 >  M_PI){ x8 -= ((double)int((x8-M_PI)  /2.0/M_PI))*2.0*M_PI;printf("8-");}	if(x8  < -M_PI){ x8 += ((double)int((x8+M_PI) / 2.0/M_PI))*2.0*M_PI;printf("8+");}
+	if(x11 >  M_PI){ x11-= ((double)int((x11-M_PI) /2.0/M_PI))*2.0*M_PI;printf("11-");}	if(x11 < -M_PI){ x11 += ((double)int((x11+M_PI) / 2.0/M_PI))*2.0*M_PI;printf("11+");}
+	if(x14 >  M_PI){ x14-= ((double)int((x14-M_PI) /2.0/M_PI))*2.0*M_PI;printf("14-");}	if(x14 < -M_PI){ x14 += ((double)int((x14+M_PI) / 2.0/M_PI))*2.0*M_PI;printf("14+");}
+
 	return 1;
 }
 int Taga1991::dump(void) 
