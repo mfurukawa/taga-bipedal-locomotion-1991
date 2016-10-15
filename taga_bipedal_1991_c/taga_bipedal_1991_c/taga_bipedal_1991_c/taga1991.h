@@ -98,9 +98,7 @@ private:
 	
 	double xr_d, yr_d, xl_d, yl_d;
 
-	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
 	double ud  [15];
-	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
 	double vd  [15];
 	double tau [13]; // time constants of the inner state
 	double taud[13]; // the adaptation effect
@@ -151,6 +149,8 @@ public:
 	double dt;
 	double x  [15];
 	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
+	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
+	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
 
 	Taga1991();
 	~Taga1991();
