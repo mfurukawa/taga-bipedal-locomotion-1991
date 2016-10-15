@@ -90,7 +90,7 @@ Taga1991::Taga1991()
 
 	w[1][2] = w[2][1] = w[3][4] = w[4][3] = w[5][6] = w[6][5] = w[7][8] = w[8][7] = w[9][10] = w[10][9] = w[11][12] = w[12][11] = w_fe = -2.0;
 	w[1][3] = w[3][1] = w[2][4] = w[4][2] = w_rl = -1.0;
-	w[6][5] = w[6][2] = w[8][3] = w[8][4] = w[10][1] = w[10][2] = w[12][3] = w[12][4] = w_hka = -1.0;
+	w[6][1] = w[6][2] = w[8][3] = w[8][4] = w[10][1] = w[10][2] = w[12][3] = w[12][4] = w_hka = -1.0;
 
 	// feedback
 
@@ -173,9 +173,11 @@ int Taga1991::update(void)
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
 
+	//// CHECK yr_d, xr_d !! ////
+
 	if (yr - yg(xr) < 0) {
 		Fg1 = -kg*(xr - xr0) - bg*xr_d;
-		Fg2 = -kg*(yr - yr0) - bg*f(-yr_d);
+		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
 	}
 	else {
 		Fg1 = 0;
@@ -184,7 +186,7 @@ int Taga1991::update(void)
 
 	if (yl - yg(xl) < 0) {
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
-		Fg4 = -kg*(yl - yl0) - bg*f(-yl_d);
+		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
 	}
 	else {
 		Fg3 = 0;
@@ -203,10 +205,10 @@ int Taga1991::update(void)
 	Feed6 = a5 * (x14 - M_PI / 2.0)*h(Fg4);
 	Feed7 = a5 * (M_PI / 2.0 - x11)*h(Fg2);
 	Feed8 = a5 * (x11 - M_PI / 2.0)*h(Fg2);
-	Feed9 = a6 * (M_PI / 2.0 - x11)*h(Fg2) - a7 * (M_PI / 2.0 - x14)*h(Fg4) + a8 * xd11 * h(Fg2);
-	Feed10 = a6 * (x11 - M_PI / 2.0)*h(Fg2) - a7 * (x14 - M_PI / 2.0)*h(Fg4) + a8 * xd11 * h(Fg2);
-	Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg2) - a7 * (M_PI / 2.0 - x11)*h(Fg4) + a8 * xd14 * h(Fg4);
-	Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg2) - a7 * (x11 - M_PI / 2.0)*h(Fg4) + a8 * xd14 * h(Fg4);
+	Feed9 = a6 * (M_PI / 2.0 - x11)*h(Fg2) + a7 * (M_PI / 2.0 - x14)*h(Fg4) - a8 * xd11 * h(Fg2);
+	Feed10 = a6 * (x11 - M_PI / 2.0)*h(Fg2) + a7 * (x14 - M_PI / 2.0)*h(Fg4) + a8 * xd11 * h(Fg2);
+	Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg4) + a7 * (M_PI / 2.0 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
+	Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg4) + a7 * (x11 - M_PI / 2.0)*h(Fg2) + a8 * xd14 * h(Fg4);
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n [DEBUG] int Taga1991::update(void)  >  Feed[12]\n\n");
