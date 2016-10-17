@@ -139,15 +139,6 @@ private:
 
 	double a[9];
 
-	// Runge Kutta Method coefficient
-	double k1[15][4]; // [4] means twice diferentiated x+ u + v
-	double k2[15][4];
-	double k3[15][4];
-	double k4[15][4];
-	// escape current state 
-	double u_esc[15], v_esc[15];
-	double x_esc[15], xd_esc[15], xdd_esc[15];
-
 	int update(void);
 	double f(double x);
 	double h(double x);
