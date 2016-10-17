@@ -53,7 +53,7 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.00005;
+	dt = 0.0001;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -162,9 +162,9 @@ int Taga1991::update(void)
 	// (xr,yr) and (xl, yl) represent the positions of the ankles, which are given by:
 
 	xr = x9 + (l2 / 2.0)*c11;
-	yr = x10 + (l2 / 2.0)*s11;
+	yr = x10 - (l2 / 2.0)*s11;
 	xl = x12 + (l2 / 2.0)*c14;
-	yl = x13 + (l2 / 2.0)*s14;
+	yl = x13 - (l2 / 2.0)*s14;
 
 	xr_d = xd9 - (l2 / 2.0)*s11*xd11;
 	yr_d = xd10 + (l2 / 2.0)*c11*xd11;
@@ -621,7 +621,7 @@ double Taga1991::f(double x)
 
 double Taga1991::h(double x) 
 {
-  if (x<0) return 0.0; 
+  if (x<=0) return 0.0; 
   else return 1.0; 
 }
 
