@@ -1,10 +1,10 @@
 set datafile separator ","
 
-set terminal postscript eps
+set terminal postscript eps color enhanced
 set out "img1.eps"
 set key
 
-plot   "out.csv" using 1:2 title 'x1' w l lw 4,\
+plot   "out.csv" using 1:2 title 'x1' w l lw 4 lc rgb 'red',\
 	   "out.csv" using 1:3 title 'x2' w l lw 4,\
 	   "out.csv" using 1:4 title 'x3' w l lw 4,\
 	   "out.csv" using 1:5 title 'x4' w l lw 4,\
