@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "taga1991.h"
 
-#define __DUMP_MATRIX__TAGA1991__
+//#define __DUMP_MATRIX__TAGA1991__
 
 Taga1991::Taga1991()
 {
@@ -53,7 +53,7 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.001;
+	dt = 0.000005;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -323,13 +323,13 @@ int Taga1991::update(void)
 
 	// D[8][1]
 
-	D[1] = l1*c5*xd52 / 2.0;
-	D[2] = -l1*s5*xd52 / 2.0;
-	D[3] = l1*c8*xd82 / 2.0;
-	D[4] = -l1*s8*xd82 / 2.0;
-	D[5] = (l1*c5*xd52 + l2*c11*xd112) / 2.0;
+	D[1] =   l1*c5*xd52 / 2.0;
+	D[2] =  -l1*s5*xd52 / 2.0;
+	D[3] =   l1*c8*xd82 / 2.0;
+	D[4] =  -l1*s8*xd82 / 2.0;
+	D[5] =  (l1*c5*xd52 + l2*c11*xd112) / 2.0;
 	D[6] = -(l1*s5*xd52 + l2*s11*xd112) / 2.0;
-	D[7] = (l1*c8*xd82 + l2*c14*xd142) / 2.0;
+	D[7] =  (l1*c8*xd82 + l2*c14*xd142) / 2.0;
 	D[8] = -(l1*s8*xd82 + l2*s14*xd142) / 2.0;
 
 	// neuton-eular method - differential equations
@@ -481,7 +481,7 @@ int Taga1991::next(void)
 		k1[i][1] = dt *  vd[i];
 
 		An[i] = xdd[i] * dt * 0.5; // An = kf(xn, yn, yn'), k=h/2, y'' = f(x, y, y') | h = dt
-		betan[i] = (xdd[i] + An[i] * 0.5) * 0.5 * dt;
+		betan[i] = (xd[i] + An[i] * 0.5) * 0.5 * dt;
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k1[i][0], k1[i][1], An[i], betan[i]);
