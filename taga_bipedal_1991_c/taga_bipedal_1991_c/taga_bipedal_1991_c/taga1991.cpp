@@ -455,6 +455,7 @@ int Taga1991::update(void)
 
 int Taga1991::next(void)
 {
+  double An, Bn, Cn, Dn, betan, deltan;
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n[DEBUG] just entered next()");
@@ -468,7 +469,7 @@ int Taga1991::next(void)
 	dump();
 #endif
 
-	// Runge Kutta Method (4th order)
+	// Runge Kutta Nystrom Method (4th order) p.94
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n\n[DEBUG] int Taga1991::next(void)  >  k1[14][4]\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
@@ -479,7 +480,8 @@ int Taga1991::next(void)
 		k1[i][0] = dt *  ud[i];
 		k1[i][1] = dt *  vd[i];
 		k1[i][2] = dt *  xd[i];
-		k1[i][3] = dt * xdd[i];
+		An = xdd[i] * dt * 0.5; // An = kf(xn, yn, yn'), k=h/2, y'' = f(x, y, y') | h = dt
+		betan = (xdd[i] + An * 0.5) * 0.5 * dt;
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k1[i][0], k1[i][1], k1[i][2], k1[i][3]);
@@ -488,12 +490,12 @@ int Taga1991::next(void)
 		 u_esc[i] =  u[i];
 		 v_esc[i] =  v[i];
 		 x_esc[i] =  x[i];
-		xd_esc[i] = xd[i];
+		xd_esc[i] = xd[i]; 
 		// set next estimation state
 		 u[i] += k1[i][0] / 2.0;
 		 v[i] += k1[i][1] / 2.0;
-		 x[i] += k1[i][2] / 2.0;
-		xd[i] += k1[i][3] / 2.0;
+		 x[i] =  x_esc[i] + betan; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3]
+		xd[i] = xd_esc[i] + An;    // yn' + An : An = k1[i][3]
 	}
 
 
@@ -511,7 +513,7 @@ int Taga1991::next(void)
 		k2[i][0] = dt *  ud[i];
 		k2[i][1] = dt *  vd[i];
 		k2[i][2] = dt *  xd[i];
-		k2[i][3] = dt * xdd[i];
+		Bn = xdd[i] * dt * 0.5; //  Bn = kf(xn + k, yn + betan, yn' + An)), xd[i] = yn' + An | Bn = k2[i][3]
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k2[i][0], k2[i][1], k2[i][2], k2[i][3]);
@@ -519,8 +521,8 @@ int Taga1991::next(void)
 		// set next estimation state
 		 u[i] =  u_esc[i] + k2[i][0] / 2.0;
 		 v[i] =  v_esc[i] + k2[i][1] / 2.0;
-		 x[i] =  x_esc[i] + k2[i][2] / 2.0;
-		xd[i] = xd_esc[i] + k2[i][3] / 2.0;
+		 x[i] =  x_esc[i] + betan; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3], 
+		xd[i] = xd_esc[i] + Bn;    // yn' + Bn : Bn = k2[i][3]
 	}
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
@@ -537,7 +539,8 @@ int Taga1991::next(void)
 		k3[i][0] = dt *  ud[i];
 		k3[i][1] = dt *  vd[i];
 		k3[i][2] = dt *  xd[i];
-		k3[i][3] = dt * xdd[i];
+		Cn = xdd[i] * dt * 0.5; // Cn = kf(xn + k, yn + betan, yn' + Bn) | Cn = k3[i][3]
+		deltan = dt * (xd_esc[i] + Cn);
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k3[i][0], k3[i][1], k3[i][2], k3[i][3]);
@@ -545,8 +548,8 @@ int Taga1991::next(void)
 		// set next estimation state
  		 u[i] =  u_esc[i] + k3[i][0];
 		 v[i] =  v_esc[i] + k3[i][1];
-		 x[i] =  x_esc[i] + k3[i][2];
-		xd[i] = xd_esc[i] + k3[i][3];
+		 x[i] =  x_esc[i] + deltan; // yn + deltan : deltan = h(yn' + Cn) | Cn = k3[i][3]
+		 xd[i] = xd_esc[i] + 2.0 * Cn; // yn' + 2Cn : Cn = k3[i][3]
 	}
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
@@ -563,7 +566,7 @@ int Taga1991::next(void)
 		k4[i][0] = dt *  ud[i];
 		k4[i][1] = dt *  vd[i];
 		k4[i][2] = dt *  xd[i];
-		k4[i][3] = dt * xdd[i];
+		Dn = xdd[i] * dt * 0.5; // Dn = kf(xn + h, yn + deltan, yn' + 2Cn), deltan = h(yn' + Cn) | Dn = k4[i][3]
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k3[i][0], k3[i][1], k3[i][2], k3[i][3]);
@@ -571,10 +574,8 @@ int Taga1991::next(void)
 		// update state
 		  u[i] =  u_esc[i] + (k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0; // u[13][14] are dummy
  		  v[i] =  v_esc[i] + (k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0; // u[13][14] are dummy
-		  x[i] =  x_esc[i] + (k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0;
-		 xd[i] = xd_esc[i] + (k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0;
-		  x[i] =  x_esc[i];
-		 xd[i] = xd_esc[i];
+		  x[i] =  x_esc[i] + dt * (xd_esc[i] + (An + Bn + Cn) / 3.0 ); // yn+1 = yn + h[yn' + 1/3(An + Bn + Cn)]
+		  xd[i] = xd_esc[i] + (An + 2.0*Bn + 2.0*Cn + Dn) / 3.0;
 	}
 
 #ifdef __DUMP_MATRIX__TAGA1991__
