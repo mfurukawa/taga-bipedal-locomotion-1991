@@ -65,7 +65,7 @@ Taga1991::Taga1991()
   
 
 	// dt is time division in second
-	dt = 0.002;
+	dt = 0.001;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -289,19 +289,20 @@ int Taga1991::update(void)
 	rad(&x11);
 	rad(&x14);
 
+
 	// Q[14]
-	Q[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;
-	Q[8] = (-b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14) + Tr2 + Tr4) / I1;
-	Q[11] = (-(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11) - Tr3 - Tr5) / I2;
-	Q[14] = (-(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14) - Tr4 - Tr6) / I2;
+	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
+	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
+	Q[11] = (-Tr3 - Tr5 -(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11)) / I2;
+	Q[14] = (-Tr4 - Tr6 -(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14)) / I2;
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n\tQ[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;\n\n");
 	printf("\tQ[5]      % 1.4e\n",Q[5]);
 	printf("\tb1        % 1.4e\n",b1);
+	printf("\tx5        % 1.4e\n",x5);
 	printf("\t     x5 - M_PI / 2.0         % 1.4e\n",x5 - M_PI / 2.0);
 	printf("\tfabs(x5 - M_PI / 2.0)        % 1.4e\n",fabs(x5 - M_PI / 2.0));
-	printf("\tx5        % 1.4e\n",x5);
 	printf("\txd5       % 1.4e\n",xd5);
 	printf("\tb2        % 1.4e\n",b2);
 	printf("\tbk        % 1.4e\n",bk);
@@ -455,7 +456,7 @@ int Taga1991::update(void)
 
 int Taga1991::next(void)
 {
-  double An, Bn, Cn, Dn, betan, deltan;
+  double An[15], Bn[15], Cn[15], Dn[15], betan[15], deltan[15];
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n[DEBUG] just entered next()");
@@ -479,9 +480,8 @@ int Taga1991::next(void)
 		// calc first coefficient k1 |  u[13][14] are dummy
 		k1[i][0] = dt *  ud[i];
 		k1[i][1] = dt *  vd[i];
-		k1[i][2] = dt *  xd[i];
-		An = xdd[i] * dt * 0.5; // An = kf(xn, yn, yn'), k=h/2, y'' = f(x, y, y') | h = dt
-		betan = (xdd[i] + An * 0.5) * 0.5 * dt;
+		An[i] = xdd[i] * dt * 0.5; // An = kf(xn, yn, yn'), k=h/2, y'' = f(x, y, y') | h = dt
+		betan[i] = (xdd[i] + An[i] * 0.5) * 0.5 * dt;
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k1[i][0], k1[i][1], k1[i][2], k1[i][3]);
@@ -494,8 +494,8 @@ int Taga1991::next(void)
 		// set next estimation state
 		 u[i] += k1[i][0] / 2.0;
 		 v[i] += k1[i][1] / 2.0;
-		 x[i] =  x_esc[i] + betan; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3]
-		xd[i] = xd_esc[i] + An;    // yn' + An : An = k1[i][3]
+		 x[i] =  x_esc[i] + betan[i]; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3]
+		xd[i] = xd_esc[i] + An[i];    // yn' + An : An = k1[i][3]
 	}
 
 
@@ -512,8 +512,7 @@ int Taga1991::next(void)
 		// calc second coefficient k2 |  u[13][14] are dummy
 		k2[i][0] = dt *  ud[i];
 		k2[i][1] = dt *  vd[i];
-		k2[i][2] = dt *  xd[i];
-		Bn = xdd[i] * dt * 0.5; //  Bn = kf(xn + k, yn + betan, yn' + An)), xd[i] = yn' + An | Bn = k2[i][3]
+		Bn[i] = xdd[i] * dt * 0.5; //  Bn = kf(xn + k, yn + betan, yn' + An)), xd[i] = yn' + An | Bn = k2[i][3]
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k2[i][0], k2[i][1], k2[i][2], k2[i][3]);
@@ -521,8 +520,8 @@ int Taga1991::next(void)
 		// set next estimation state
 		 u[i] =  u_esc[i] + k2[i][0] / 2.0;
 		 v[i] =  v_esc[i] + k2[i][1] / 2.0;
-		 x[i] =  x_esc[i] + betan; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3], 
-		xd[i] = xd_esc[i] + Bn;    // yn' + Bn : Bn = k2[i][3]
+		 x[i] =  x_esc[i] + betan[i]; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3], 
+		xd[i] = xd_esc[i] + Bn[i];    // yn' + Bn : Bn = k2[i][3]
 	}
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
@@ -538,9 +537,8 @@ int Taga1991::next(void)
 		// calc second coefficient k3 |  u[13][14] are dummy
 		k3[i][0] = dt *  ud[i];
 		k3[i][1] = dt *  vd[i];
-		k3[i][2] = dt *  xd[i];
-		Cn = xdd[i] * dt * 0.5; // Cn = kf(xn + k, yn + betan, yn' + Bn) | Cn = k3[i][3]
-		deltan = dt * (xd_esc[i] + Cn);
+		Cn[i] = xdd[i] * dt * 0.5; // Cn = kf(xn + k, yn + betan, yn' + Bn) | Cn = k3[i][3]
+		deltan[i] = dt * (xd_esc[i] + Cn[i]);
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k3[i][0], k3[i][1], k3[i][2], k3[i][3]);
@@ -548,8 +546,8 @@ int Taga1991::next(void)
 		// set next estimation state
  		 u[i] =  u_esc[i] + k3[i][0];
 		 v[i] =  v_esc[i] + k3[i][1];
-		 x[i] =  x_esc[i] + deltan; // yn + deltan : deltan = h(yn' + Cn) | Cn = k3[i][3]
-		 xd[i] = xd_esc[i] + 2.0 * Cn; // yn' + 2Cn : Cn = k3[i][3]
+		 x[i] =  x_esc[i] + deltan[i]; // yn + deltan : deltan = h(yn' + Cn) | Cn = k3[i][3]
+		 xd[i] = xd_esc[i] + 2.0 * Cn[i]; // yn' + 2Cn : Cn = k3[i][3]
 	}
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
@@ -565,8 +563,7 @@ int Taga1991::next(void)
 		// calc second coefficient k4 |  u[13][14] are dummy
 		k4[i][0] = dt *  ud[i];
 		k4[i][1] = dt *  vd[i];
-		k4[i][2] = dt *  xd[i];
-		Dn = xdd[i] * dt * 0.5; // Dn = kf(xn + h, yn + deltan, yn' + 2Cn), deltan = h(yn' + Cn) | Dn = k4[i][3]
+		Dn[i] = xdd[i] * dt * 0.5; // Dn = kf(xn + h, yn + deltan, yn' + 2Cn), deltan = h(yn' + Cn) | Dn = k4[i][3]
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 		printf("\t% 4.2e\t% 4.2e\t% 4.2e\t% 4.2e\n", k3[i][0], k3[i][1], k3[i][2], k3[i][3]);
@@ -574,8 +571,8 @@ int Taga1991::next(void)
 		// update state
 		  u[i] =  u_esc[i] + (k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0; // u[13][14] are dummy
  		  v[i] =  v_esc[i] + (k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0; // u[13][14] are dummy
-		  x[i] =  x_esc[i] + dt * (xd_esc[i] + (An + Bn + Cn) / 3.0 ); // yn+1 = yn + h[yn' + 1/3(An + Bn + Cn)]
-		  xd[i] = xd_esc[i] + (An + 2.0*Bn + 2.0*Cn + Dn) / 3.0;
+		  x[i] =  x_esc[i] + dt * (xd_esc[i] + (An[i] + Bn[i] + Cn[i]) / 3.0 ); // yn+1 = yn + h[yn' + 1/3(An + Bn + Cn)]
+		  xd[i]= xd_esc[i] + (An[i] + 2.0*Bn[i] + 2.0*Cn[i] + Dn[i]) / 3.0;
 	}
 
 #ifdef __DUMP_MATRIX__TAGA1991__
