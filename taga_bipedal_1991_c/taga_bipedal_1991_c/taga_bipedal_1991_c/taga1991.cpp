@@ -53,7 +53,7 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.0001;
+	dt = 0.00002;
 
 	u[0] = 5.5; // Fig 5A
 
