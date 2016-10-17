@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "taga1991.h"
 
-//#define __DUMP_MATRIX__TAGA1991__
+#define __DUMP_MATRIX__TAGA1991__
 
 Taga1991::Taga1991()
 {
@@ -263,11 +263,11 @@ int Taga1991::update(void)
 	P[8][7] = -l1*s8 / 2.0 / I1;
 	P[8][8] = -l1*c8 / 2.0 / I1;
 
-	P[11][5] = -l2*s11 / 2.0 / I1;
-	P[11][6] = -l2*c11 / 2.0 / I1;
+	P[11][5] = -l2*s11 / 2.0 / I2;
+	P[11][6] = -l2*c11 / 2.0 / I2;
 
-	P[14][7] = -l2*s14 / 2.0 / I1;
-	P[14][8] = -l2*c14 / 2.0 / I1;
+	P[14][7] = -l2*s14 / 2.0 / I2;
+	P[14][8] = -l2*c14 / 2.0 / I2;
 
 	// regulate cyclic data
 	rad(&x5);
@@ -472,7 +472,7 @@ int Taga1991::next(void)
 	// Runge Kutta Nystrom Method (4th order) p.94
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n\n[DEBUG] int Taga1991::next(void)  >  k1[14][2] An betan\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
+	printf("\n\n[DEBUG] int Taga1991::next(void)  >  k1[14][2] An betan\n\n\tdt*ud\t\tdt*vd\t\tAn\t\tbetan\n");
 #endif
 
 	for (int i = 1; i <= 14; i++) {
@@ -507,7 +507,7 @@ int Taga1991::next(void)
 	printf("\n[DEBUG] after k1");
 	dump();
 
-	printf("\n[DEBUG] int Taga1991::next(void)  >  k2[14][2] An Bn \n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k2[14][2] An Bn \n\n\tdt*ud\t\tdt*vd\t\tAn\t\tBn\n");
 #endif
 
 	for (int i = 1; i <= 14; i++) {
@@ -534,7 +534,7 @@ int Taga1991::next(void)
 	printf("\n[DEBUG] after k2");
 	dump();
 
-	printf("\n[DEBUG] int Taga1991::next(void)  >  k3[14][2] Cn deltan\n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k3[14][2] Cn deltan\n\n\tdt*ud\t\tdt*vd\t\tCn\t\tdeltan\n");
 #endif
 
 	for (int i = 1; i <= 14; i++) {
@@ -562,7 +562,7 @@ int Taga1991::next(void)
 	printf("\n[DEBUG] after k3");
 	dump();
 
-	printf("\n[DEBUG] int Taga1991::next(void)  >  k4[14][2] Cn Dn \n\n\tdt*ud\t\tdt*vd\t\tdt*xd\t\tdt*xdd\n");
+	printf("\n[DEBUG] int Taga1991::next(void)  >  k4[14][2] Cn Dn \n\n\tdt*ud\t\tdt*vd\t\tCn\t\tDn\n");
 #endif
 
 	for (int i = 1; i <= 14; i++) {
@@ -629,8 +629,8 @@ double Taga1991::yg(double x)
 }
 void Taga1991::rad(double *x)
 {
-	*x =atan(tan( M_PI  )); 
-	return;
+  *x = atan(tan(*x)); 
+  return;
 }
 
 

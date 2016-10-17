@@ -27,7 +27,7 @@ int main() {
 		  printf("\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
 		  exit(0); 
 		}
-		if(t>0.86){ 
+		if(t>1.86){ 
 		  printf("\nsimulation time finished[i] : %d\n",i); 
 		  exit(0); 
 		}
