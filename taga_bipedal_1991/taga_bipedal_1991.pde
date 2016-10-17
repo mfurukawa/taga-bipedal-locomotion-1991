@@ -40,6 +40,6 @@ void draw() {
            float(pieces[12])*100+50 + cos(float(pieces[14])+PI)*30, -float(pieces[13])*100+500 + sin(float(pieces[14])+PI)*30);
     }
     // Go to the next line for the next run through draw()
-    index = index + 50;    
+    index = index + 10;    
   }
 }
