@@ -14,10 +14,10 @@ gauss_jordan.o: gauss_jordan.cpp gauss_jordan.h
 	$(CC) -c gauss_jordan.cpp -o $@ $(FLAG)
 gauss_jordan_test.o: gauss_jordan_test.cpp gauss_jordan.cpp
 	$(CC) -c $^ -o $@ $(FLAG)
-taga1991.o: taga1991.cpp gauss_jordan.h
+taga1991.o: taga1991.cpp gauss_jordan.h taga1991.h
 	$(CC) -o $@ -c taga1991.cpp $(FLAG)
-taga.o: taga1991_test.cpp
-	$(CC) -o $@ -c $^ $(FLAG)
+taga.o: taga1991_test.cpp taga1991.h
+	$(CC) -o $@ -c taga1991_test.cpp $(FLAG)
 
 clean:
 	rm *.o
