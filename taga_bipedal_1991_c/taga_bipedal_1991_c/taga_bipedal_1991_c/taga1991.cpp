@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "taga1991.h"
 
-//#define __DUMP_MATRIX__TAGA1991__
+#define __DUMP_MATRIX__TAGA1991__
 
 Taga1991::Taga1991()
 {
@@ -53,7 +53,7 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.000005;
+	dt = 0.00005;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -619,7 +619,7 @@ double Taga1991::f(double x)
 
 double Taga1991::h(double x) 
 {
-  if (x<=0) return 0.0; 
+  if (x<0) return 0.0; 
   else return 1.0; 
 }
 
@@ -629,7 +629,7 @@ double Taga1991::yg(double x)
 }
 void Taga1991::rad(double *x)
 {
-  *x = atan(tan(*x)); 
+  //  *x = atan(tan(*x)); 
   return;
 }
 
