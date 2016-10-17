@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "taga1991.h"
 
-#define __DUMP_MATRIX__TAGA1991__
+//#define __DUMP_MATRIX__TAGA1991__
 
 Taga1991::Taga1991()
 {
@@ -174,8 +174,6 @@ int Taga1991::update(void)
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
 
-	//// CHECK yr_d, xr_d !! ////
-
 	if (yr - yg(xr) < 0) {
 		Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
@@ -183,6 +181,8 @@ int Taga1991::update(void)
 	else {
 		Fg1 = 0;
 		Fg2 = 0;
+		xr0 = xr;
+		yr0 = yr;
 	}
 
 	if (yl - yg(xl) < 0) {
@@ -192,6 +192,8 @@ int Taga1991::update(void)
 	else {
 		Fg3 = 0;
 		Fg4 = 0;
+		xl0 = xl;
+		yl0 = yl;
 	}
 
 
