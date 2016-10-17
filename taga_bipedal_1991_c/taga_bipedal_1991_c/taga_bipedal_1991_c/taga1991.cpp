@@ -623,14 +623,8 @@ double Taga1991::yg(double x)
 }
 void Taga1991::rad(double *x)
 {
-  if(*x >  M_PI) {
-	*x -= (double)int((*x + M_PI)/2.0/M_PI) * 2.0*M_PI;
+	*x =atan(tan( M_PI  )); 
 	return;
-  }	
-  if(*x  < - M_PI){ 
-	*x += (double)int((-*x + M_PI)/2.0/M_PI) * 2.0*M_PI;
-	return;
-  }
 }
 
 
