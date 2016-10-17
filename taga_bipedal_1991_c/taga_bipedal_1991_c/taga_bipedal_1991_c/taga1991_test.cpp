@@ -24,15 +24,11 @@ int main() {
 	for (int i = 0; i < 100000; i++) 
 	{
 		if(taga1991.x[2]<0){ 
-		  printf("\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
+		  fprintf(stderr, "\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
 		  exit(0); 
 		}
-		if(t>1.86){ 
-		  printf("\nsimulation time finished[i] : %d\n",i); 
-		  exit(0); 
-		}
-		if(!taga1991.next() ){ 
-		  printf("\nsingular matrix !!!  [i] : %d\n",i); 
+		if(t>10.0){ 
+		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
 		  exit(0); 
 		}
 		printf("% 1.4lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf\n", 
@@ -61,6 +57,12 @@ int main() {
 			   taga1991.v[5],
 			   taga1991.v[6],
 			   taga1991.v[7]);
+
+		if(!taga1991.next() ){ 
+		  fprintf(stderr, "\nsingular matrix !!!  [i] : %d\n",i); 
+		  exit(0); 
+		}
+
 		t += taga1991.dt;
 	}
 	return 0;

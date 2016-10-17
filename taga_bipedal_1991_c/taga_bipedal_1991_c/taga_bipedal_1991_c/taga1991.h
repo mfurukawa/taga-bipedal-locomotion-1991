@@ -76,11 +76,6 @@
 #define c11 cos(x11)
 #define c14 cos(x14)
 
-#define sd11 sin(xd11)
-#define sd14 sin(xd14)
-#define cd11 cos(xd11)
-#define cd14 cos(xd14)
-
 class Taga1991 
 {
 private:
