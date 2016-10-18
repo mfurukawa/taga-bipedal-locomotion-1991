@@ -138,7 +138,6 @@ private:
 	double f(double x);
 	double h(double x);
 	double yg(double x);
-	void rad(double *x);
 
 public:
 	double dt;
