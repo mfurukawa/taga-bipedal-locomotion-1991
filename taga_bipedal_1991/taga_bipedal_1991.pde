@@ -22,8 +22,8 @@ void setup() {
   lines = loadStrings("/Users/Masahiro/taga-bipedal-locomotion-1991/taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/out.csv");
 
   String[] pieces;
-  pieces = split(lines[0], ','); double t0 = float(pieces[0]); println(t0);
-  pieces = split(lines[1], ','); double t1 = float(pieces[0]); println(t1);
+  pieces = split(lines[0], ','); double t0 = float(pieces[0]); //println(t0);
+  pieces = split(lines[1], ','); double t1 = float(pieces[0]); //println(t1);
   stp = (int)(1.0/60.0 * speed_scale / (t1 - t0));
 }
 
