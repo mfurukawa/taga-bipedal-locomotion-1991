@@ -40,18 +40,18 @@ set ytics ('u_1' 0,\
 		   'u_{11}' 200,\
 		   'u_{12}' 220 )
 
-plot   "out.csv" using 1:($24+0) title 'u1' w l lt -1 lw 4,\
-	   "out.csv" using 1:($25+20) title 'u2' w l lt -1  lw 4,\
-	   "out.csv" using 1:($28+40) title 'u5' w l lt -1  lw 4,\
-	   "out.csv" using 1:($29+60) title 'u6' w l lt -1  lw 4,\
-	   "out.csv" using 1:($32+80) title 'u9' w l lt -1  lw 4,\
-	   "out.csv" using 1:($33+100) title 'u10' w l lt -1  lw 4,\
-	   "out.csv" using 1:($26+120) title 'u3' w l lt -1  lw 4,\
-	   "out.csv" using 1:($27+140) title 'u4' w l lt -1  lw 4,\
-	   "out.csv" using 1:($30+160) title 'u7' w l lt -1  lw 4,\
-	   "out.csv" using 1:($31+180) title 'u8' w l lt -1  lw 4,\
-	   "out.csv" using 1:($34+200) title 'u11' w l lt -1  lw 4,\
-	   "out.csv" using 1:($35+220) title 'u12' w l lt -1  lw 4
+plot   "out.csv" using 1:($24*1.1+0) title 'u1' w l lt -1 lw 4,\
+	   "out.csv" using 1:($25*1.1+20) title 'u2' w l lt -1  lw 4,\
+	   "out.csv" using 1:($28*1.1+40) title 'u5' w l lt -1  lw 4,\
+	   "out.csv" using 1:($29*1.1+60) title 'u6' w l lt -1  lw 4,\
+	   "out.csv" using 1:($32*1.1+80) title 'u9' w l lt -1  lw 4,\
+	   "out.csv" using 1:($33*1.1+100) title 'u10' w l lt -1  lw 4,\
+	   "out.csv" using 1:($26*1.1+120) title 'u3' w l lt -1  lw 4,\
+	   "out.csv" using 1:($27*1.1+140) title 'u4' w l lt -1  lw 4,\
+	   "out.csv" using 1:($30*1.1+160) title 'u7' w l lt -1  lw 4,\
+	   "out.csv" using 1:($31*1.1+180) title 'u8' w l lt -1  lw 4,\
+	   "out.csv" using 1:($34*1.1+200) title 'u11' w l lt -1  lw 4,\
+	   "out.csv" using 1:($35*1.1+220) title 'u12' w l lt -1  lw 4
 
 #set multiplot layout 3,1
 
