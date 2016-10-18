@@ -53,7 +53,7 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.00001;
+	dt = 0.0001;
 
 	u[0] = 5.5; // Fig 5A
 
@@ -150,15 +150,6 @@ int Taga1991::update(void)
 
 	// A. The equations of motion for the bipedal musculo-skeletal system
 
-	// Torques generated at each joint are given by:
-
-	Tr1 = p_he*y[2] - p_hf*y[1];
-	Tr2 = p_he*y[4] - p_hf*y[3];
-	Tr3 = p_ke*y[6] - p_kf*y[5];
-	Tr4 = p_ke*y[8] - p_kf*y[7];
-	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
-	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
-
 	// (xr,yr) and (xl, yl) represent the positions of the ankles, which are given by:
 
 	xr = x9  + (l2 / 2.0)*c11;
@@ -196,6 +187,15 @@ int Taga1991::update(void)
 		yl0 = yl;
 	}
 
+	// Torques generated at each joint are given by:
+
+	Tr1 = p_he*y[2] - p_hf*y[1];
+	Tr2 = p_he*y[4] - p_hf*y[3];
+	Tr3 = p_ke*y[6] - p_kf*y[5];
+	Tr4 = p_ke*y[8] - p_kf*y[7];
+	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
+	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
+
 	// Feedback pathway
 
 	Feed1 = a1 * (x5 - M_PI / 2.0) - a2 * (x8 - M_PI / 2.0) + a3 * (x11 - M_PI / 2.0)*h(Fg2) + a4 * h(Fg4);
@@ -213,7 +213,7 @@ int Taga1991::update(void)
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n [DEBUG] int Taga1991::update(void)  >  Feed[12]\n\n");
-	for(int i=1; i<12; i++) 
+	for(int i=1; i<=12; i++) 
 	  printf("\t% 4.2e", Feed[i]);
 	printf("\n");
 #endif
@@ -237,7 +237,7 @@ int Taga1991::update(void)
 
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\tud[12]\t\tvd[12]\n\n");
-	for(int i=1; i<12; i++)   
+	for(int i=1; i<=12; i++)   
 	  printf("\t% 4.2e\t% 4.2e\n", ud[i],vd[i]);	
 #endif
 
