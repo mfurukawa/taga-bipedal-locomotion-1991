@@ -33,7 +33,7 @@ int main() {
 		}
 
 		// time : 1
-		printf("% 1.4lf,", t);
+		printf("% 1.8lf,", t);
 
 		// link position and orientation : 2-15
 		for(int i=1; i<=14; i++) printf("% 3.10lf,", taga1991.x[i]);
