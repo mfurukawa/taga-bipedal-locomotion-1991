@@ -23,7 +23,7 @@ int main() {
 
 	for (int i = 0; i < 100000; i++) 
 	{
-		if(taga1991.x[2]<0){ 
+		if(taga1991.x[2] <= -2){ 
 		  fprintf(stderr, "\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
 		  exit(0); 
 		}
