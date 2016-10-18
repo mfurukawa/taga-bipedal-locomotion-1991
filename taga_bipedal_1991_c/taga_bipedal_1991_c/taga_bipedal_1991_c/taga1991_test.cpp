@@ -38,7 +38,7 @@ int main() {
 		// link position and orientation : 2-15
 		for(int i=1; i<=14; i++) printf("% 3.10lf,", taga1991.x[i]);
 
-		// ankle position : 15-22
+		// ankle position : 16-23
 		printf("% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,",
 			   taga1991.xr0,
 			   taga1991.xr,
@@ -49,7 +49,7 @@ int main() {
 			   taga1991.yl0,
 			   taga1991.yl);
 
-		// neural rythm generator : 23-34
+		// neural rythm generator : 24-35
 		for(int i=1; i<=12; i++) printf("% 3.10lf,", taga1991.u[i]);
 
 		printf("\n");
