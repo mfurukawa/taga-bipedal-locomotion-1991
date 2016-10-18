@@ -10,7 +10,8 @@
 
 set datafile separator ","
 
-set terminal postscript eps color enhanced
+#set terminal postscript eps color enhanced
+set terminal postscript eps
 set out "img1.eps"
 set key left
 
@@ -19,7 +20,9 @@ set lmargin 10
 set rmargin 2
 
 set xlabel 'time'
-set yrange [-10:240]
+set xrange [-0.1:10]
+set yrange [-20:240]
+set tics out
 
 set nokey
 set ylabel 'u(i)' 
@@ -37,18 +40,18 @@ set ytics ('u_1' 0,\
 		   'u_{11}' 200,\
 		   'u_{12}' 220 )
 
-plot   "out.csv" using 1:($24+0) title 'u1' w l lw 4,\
-	   "out.csv" using 1:($25+20) title 'u2' w l lw 4,\
-	   "out.csv" using 1:($28+40) title 'u5' w l lw 4,\
-	   "out.csv" using 1:($29+60) title 'u6' w l lw 4,\
-	   "out.csv" using 1:($32+80) title 'u9' w l lw 4,\
-	   "out.csv" using 1:($33+100) title 'u10' w l lw 4,\
-	   "out.csv" using 1:($26+120) title 'u3' w l lw 4,\
-	   "out.csv" using 1:($27+140) title 'u4' w l lw 4,\
-	   "out.csv" using 1:($30+160) title 'u7' w l lw 4,\
-	   "out.csv" using 1:($31+180) title 'u8' w l lw 4,\
-	   "out.csv" using 1:($34+200) title 'u11' w l lw 4,\
-	   "out.csv" using 1:($35+220) title 'u12' w l lw 4
+plot   "out.csv" using 1:($24+0) title 'u1' w l lt -1 lw 4,\
+	   "out.csv" using 1:($25+20) title 'u2' w l lt -1  lw 4,\
+	   "out.csv" using 1:($28+40) title 'u5' w l lt -1  lw 4,\
+	   "out.csv" using 1:($29+60) title 'u6' w l lt -1  lw 4,\
+	   "out.csv" using 1:($32+80) title 'u9' w l lt -1  lw 4,\
+	   "out.csv" using 1:($33+100) title 'u10' w l lt -1  lw 4,\
+	   "out.csv" using 1:($26+120) title 'u3' w l lt -1  lw 4,\
+	   "out.csv" using 1:($27+140) title 'u4' w l lt -1  lw 4,\
+	   "out.csv" using 1:($30+160) title 'u7' w l lt -1  lw 4,\
+	   "out.csv" using 1:($31+180) title 'u8' w l lt -1  lw 4,\
+	   "out.csv" using 1:($34+200) title 'u11' w l lt -1  lw 4,\
+	   "out.csv" using 1:($35+220) title 'u12' w l lt -1  lw 4
 
 #set multiplot layout 3,1
 
