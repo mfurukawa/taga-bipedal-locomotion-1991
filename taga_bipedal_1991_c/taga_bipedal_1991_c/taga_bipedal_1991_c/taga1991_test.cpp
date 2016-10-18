@@ -27,7 +27,7 @@ int main() {
 		  fprintf(stderr, "\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
 		  exit(0); 
 		}
-		if(t>10.0){ 
+		if(t>2.0){ 
 		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
 		  exit(0); 
 		}
