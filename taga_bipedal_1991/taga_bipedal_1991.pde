@@ -14,7 +14,7 @@ int stp = 0;
 double speed_scale = 0.5;
 
 void setup() {
-  size(1000, 600);
+  size(1400, 600);
   background(255);
   stroke(0);
   strokeWeight(2);
@@ -33,7 +33,7 @@ void draw() {
   
   background(255);
   strokeWeight(1);
-  line(0,500,1000,500);
+  line(0,500,1400,500);
   
   strokeWeight(2);
   
@@ -54,11 +54,17 @@ void draw() {
       
       line(float(pieces[12])*100+50 + cos(float(pieces[14])   )*30, -float(pieces[13])*100+500 + sin(float(pieces[14])   )*30, 
            float(pieces[12])*100+50 + cos(float(pieces[14])+PI)*30, -float(pieces[13])*100+500 + sin(float(pieces[14])+PI)*30);
+    
     }
     
-    
     // Go to the next line for the next run through draw()
-    index = index + stp;    
+    index = index + stp;
+
+    if(float(pieces[3])*100+50 + cos(float(pieces[5])   )*25 > 1400 || index > lines.length){
+       index = 0;
+
+    }
+    
   }
 
 }
