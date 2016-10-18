@@ -53,9 +53,9 @@ Taga1991::Taga1991()
   memset(&a,0x00,sizeof(a));
 
 	// dt is time division in second
-	dt = 0.0005;
+	dt = 0.00001;
 
-	u[0] = 6.4; // Fig 5A
+	u[0] = 5.5; // Fig 5A
 
 	// D. Simlumation Parameters
 
@@ -72,9 +72,9 @@ Taga1991::Taga1991()
 
 	// neural rhythm generator
 
-	tau[1] = tau[2] = tau[3] = tau[4] = 0.05;
+	tau [1] = tau [2] = tau [3] = tau [4] = 0.05;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau[5] = tau[6] = tau[7] = tau[8] = tau[9] = tau[10] = tau[11] = tau[12] = 0.025;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.025;
 	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
 	beta = 2.5;
 
@@ -130,7 +130,7 @@ Taga1991::Taga1991()
 
 	// init C[8][14]
 
-	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4] = C[7][6] = C[8][7] = 1.0;
+	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
 
 
@@ -161,12 +161,12 @@ int Taga1991::update(void)
 
 	// (xr,yr) and (xl, yl) represent the positions of the ankles, which are given by:
 
-	xr = x9 + (l2 / 2.0)*c11;
+	xr = x9  + (l2 / 2.0)*c11;
 	yr = x10 - (l2 / 2.0)*s11;
 	xl = x12 + (l2 / 2.0)*c14;
 	yl = x13 - (l2 / 2.0)*s14;
 
-	xr_d = xd9 - (l2 / 2.0)*s11*xd11;
+	xr_d = xd9  - (l2 / 2.0)*s11*xd11;
 	yr_d = xd10 + (l2 / 2.0)*c11*xd11;
 	xl_d = xd12 - (l2 / 2.0)*s14*xd14;
 	yl_d = xd13 + (l2 / 2.0)*c14*xd14;
@@ -174,35 +174,27 @@ int Taga1991::update(void)
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
 
-	if (yr - yg(xr) < 0) {
-		Fg1 = -kg*(xr - xr0) - bg*xr_d;
+	if (yr - yg(xr) < 0.0) {
+	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
 	}
 	else {
-		Fg1 = 0;
-		Fg2 = 0;
+		Fg1 = 0.0;
+		Fg2 = 0.0;
 		xr0 = xr;
 		yr0 = yr;
 	}
 
-	if (yl - yg(xl) < 0) {
+	if (yl - yg(xl) < 0.0) {
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
 	}
 	else {
-		Fg3 = 0;
-		Fg4 = 0;
+		Fg3 = 0.0;
+		Fg4 = 0.0;
 		xl0 = xl;
 		yl0 = yl;
 	}
-
-
-
-	// regulate cyclic data
-	rad(&x5);
-	rad(&x8);
-	rad(&x11);
-	rad(&x14);
 
 	// Feedback pathway
 
@@ -214,7 +206,7 @@ int Taga1991::update(void)
 	Feed6 = a5 * (x14 - M_PI / 2.0)*h(Fg4);
 	Feed7 = a5 * (M_PI / 2.0 - x11)*h(Fg2);
 	Feed8 = a5 * (x11 - M_PI / 2.0)*h(Fg2);
-	Feed9 = a6 * (M_PI / 2.0 - x11)*h(Fg2) + a7 * (M_PI / 2.0 - x14)*h(Fg4) - a8 * xd11 * h(Fg2);
+	Feed9 =  a6 * (M_PI / 2.0 - x11)*h(Fg2) + a7 * (M_PI / 2.0 - x14)*h(Fg4) - a8 * xd11 * h(Fg2);
 	Feed10 = a6 * (x11 - M_PI / 2.0)*h(Fg2) + a7 * (x14 - M_PI / 2.0)*h(Fg4) + a8 * xd11 * h(Fg2);
 	Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg4) + a7 * (M_PI / 2.0 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
 	Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg4) + a7 * (x11 - M_PI / 2.0)*h(Fg2) + a8 * xd14 * h(Fg4);
@@ -270,13 +262,6 @@ int Taga1991::update(void)
 
 	P[14][7] = -l2*s14 / 2.0 / I2;
 	P[14][8] = -l2*c14 / 2.0 / I2;
-
-	// regulate cyclic data
-	rad(&x5);
-	rad(&x8);
-	rad(&x11);
-	rad(&x14);
-
 
 	// Q[14]
 	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
@@ -615,24 +600,19 @@ Taga1991::~Taga1991()
 
 double Taga1991::f(double x)  
 {
-  if (x<0) return 0.0; // max(0,x);
+  if (x<0.0) return 0.0; // max(0,x);
   else return x; 
 } 
 
 double Taga1991::h(double x) 
 {
-  if (x<=0) return 0.0; 
+  if (x<=0.0) return 0.0; 
   else return 1.0; 
 }
 
 double Taga1991::yg(double x) 
 {
   return 0.0; 
-}
-void Taga1991::rad(double *x)
-{
-  //  *x = atan(tan(*x)); 
-  return;
 }
 
 
