@@ -31,22 +31,15 @@ int main() {
 		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
 		  exit(0); 
 		}
-		printf("% 1.4lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf\n", 
-			   t, 
-			   taga1991.x[1],
-			   taga1991.x[2],
-			   taga1991.x[3],
-			   taga1991.x[4],
-			   taga1991.x[5],
-			   taga1991.x[6],
-			   taga1991.x[7],
-			   taga1991.x[8],
-			   taga1991.x[9],
-			   taga1991.x[10],
-			   taga1991.x[11],
-			   taga1991.x[12],
-			   taga1991.x[13],
-			   taga1991.x[14],
+
+		// time : 1
+		printf("% 1.4lf,", t);
+
+		// link position and orientation : 2-15
+		for(int i=1; i<=14; i++) printf("% 3.10lf,", taga1991.x[i]);
+
+		// ankle position : 15-22
+		printf("% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,",
 			   taga1991.xr0,
 			   taga1991.xr,
 			   taga1991.yr0,
@@ -54,9 +47,12 @@ int main() {
 			   taga1991.xl0,
 			   taga1991.xl,
 			   taga1991.yl0,
-			   taga1991.yl,
-			   taga1991.u[1],
-			   taga1991.u[2]);
+			   taga1991.yl);
+
+		// neural rythm generator : 23-34
+		for(int i=1; i<=12; i++) printf("% 3.10lf,", taga1991.u[i]);
+
+		printf("\n");
 
 		if(!taga1991.next() ){ 
 		  fprintf(stderr, "\nsingular matrix !!!  [i] : %d\n",i); 
