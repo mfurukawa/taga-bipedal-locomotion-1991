@@ -34,7 +34,7 @@ Taga1991::Taga1991()
 	kg = 10000.0; bg = 1000.0;
 	p_hf = 15.0;  p_he = 85.0;  
 	p_kf = 15.0;  p_ke = 15.0;  
-	p_af = 60;  p_ae = 140; // 200
+	p_af = 58.95;  p_ae = 171.7; // 200
 
 	// dt is time division in second
 	dt = 0.00005;
@@ -44,9 +44,9 @@ Taga1991::Taga1991()
 	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
 	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
 
-	tau [1] = tau [2] = tau [3] = tau [4] = 0.090;
+	tau [1] = tau [2] = tau [3] = tau [4] = 0.0895;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.090/2.0;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.0895/2.0;
 	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
 	beta = 2.5;
 
@@ -66,7 +66,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 5.0; // Fig 5A
+	u[0] = 8.3; // Fig 5A
 
 	init();
 }
