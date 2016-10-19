@@ -46,8 +46,8 @@ Taga1991::Taga1991()
 
 	tau [1] = tau [2] = tau [3] = tau [4] = 0.05;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = tau [1] / 2.0;//0.025;
-	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = taud[1] / 2.0;//0.30;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.025;
+	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
 	beta = 2.5;
 
 	// D. Simlumation Parameters
@@ -66,7 +66,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 5.6; // Fig 5A
+	u[0] = 5.9; // Fig 5A
 
 	init();
 }
@@ -188,8 +188,6 @@ int Taga1991::update(void)
 
 	if (yr - yg(xr) < 0.0) {
 	  if(!flag_r) {
-		xr0 = xr;
-		yr0 = yr;
 		flag_r = 1;
 	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
@@ -198,13 +196,13 @@ int Taga1991::update(void)
 	else {
 		Fg1 = 0.0;
 		Fg2 = 0.0;
+		xr0 = xr;
+		yr0 = yr;
 		flag_r = 0;
 	}
 
 	if (yl - yg(xl) < 0.0) {
 	  if(!flag_l) {
-		xl0 = xl;	
-		yl0 = yl; 
 		flag_l = 1;
 	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
@@ -213,6 +211,8 @@ int Taga1991::update(void)
 	else {
 		Fg3 = 0.0;
 		Fg4 = 0.0;
+		xl0 = xl;	
+		yl0 = yl; 
 		flag_l = 0;
 	}
 
@@ -222,8 +222,8 @@ int Taga1991::update(void)
 	Tr2 = p_he*y[4] - p_hf*y[3];
 	Tr3 = p_ke*y[6] - p_kf*y[5];
 	Tr4 = p_ke*y[8] - p_kf*y[7];
-	Tr5 = 0;//(p_ae*y[10] - p_af*y[9]) *h(Fg2);
-	Tr6 = 0;//(p_ae*y[12] - p_af*y[11])*h(Fg4);
+	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
+	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
 
 	// Feedback pathway
 
@@ -390,15 +390,6 @@ int Taga1991::update(void)
 	}
 #endif
 
-	// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
-	for (int k = 1; k <= 14; k++) { 			// row idx for CP
-		for (int j = 1; j <= 8; j++) {			// col idx for CP
-			Pinv_CP[k][j] = 0.0;
-			for (int i = 1; i <= 8; i++) {
-				Pinv_CP[k][j] += P[k][i] * inv_CP[i][j]; // NOTICE!! inv_CP's index number starts from '1'!
-			}
-		}
-	}
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	for (int j = 1; j <= 8; j++) { 				// row idx for CP
 		CQ[j] = 0.0;
@@ -410,11 +401,19 @@ int Taga1991::update(void)
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
+	// (inv_CP)D[8][1] = inv_CP[8][8] , DCQ[8][1] 
+	double inv_CP_D[9];
+	for (int k = 1; k <= 8; k++) {			// col idx for CP
+	  inv_CP_D[k] = 0.0;
+	  for (int i = 1; i <= 8; i++) {
+		inv_CP_D[k] += inv_CP[k][i] * DCQ[i]; // NOTICE!! inv_CP's index number starts from '1'!
+	  }
+	}
 	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
 	for (int j = 1; j <= 14; j++) { 				// row idx for CP
 		xdd[j] = Q[j];
 		for (int i = 1; i <= 8; i++){
-			xdd[j] += Pinv_CP[j][i] * DCQ[i];
+			xdd[j] += P[j][i] * inv_CP_D[i];
 		}
 	}
 
