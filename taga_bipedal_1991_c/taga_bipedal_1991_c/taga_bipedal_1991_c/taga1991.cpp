@@ -391,40 +391,37 @@ int Taga1991::update(void)
 #endif
 
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
-	for (int j = 1; j <= 8; j++) { 				// row idx for CP
+	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;
-		for (int i = 1; i <= 14; i++){
+		for (int i = 1; i <= 14; i++)
 		  CQ[j] += C[j][i] * Q[i];
-
-		}
 	}
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
+
 	// (inv_CP)D[8][1] = inv_CP[8][8] , DCQ[8][1] 
 	double inv_CP_D[9];
-	for (int k = 1; k <= 8; k++) {			// col idx for CP
+	for (int k = 1; k <= 8; k++) {
 	  inv_CP_D[k] = 0.0;
-	  for (int i = 1; i <= 8; i++) {
-		inv_CP_D[k] += inv_CP[k][i] * DCQ[i]; // NOTICE!! inv_CP's index number starts from '1'!
-	  }
-	}
-	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
-	for (int j = 1; j <= 14; j++) { 				// row idx for CP
-		xdd[j] = Q[j];
-		for (int i = 1; i <= 8; i++){
-			xdd[j] += P[j][i] * inv_CP_D[i];
-		}
+	  for (int i = 1; i <= 8; i++) 
+		inv_CP_D[k] += inv_CP[k][i] * DCQ[i];
 	}
 
-	//exit(1);
+	// XDD[14][1] = P[14][8] * (inv_CP)D[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
+	for (int j = 1; j <= 14; j++) {
+		xdd[j] = Q[j];
+		for (int i = 1; i <= 8; i++)
+			xdd[j] += P[j][i] * inv_CP_D[i];
+	}
+
 	return 1;
 }
 
 int Taga1991::next(void)
 {
   // Runge Kutta Method coefficient
-  double k1[15][2]; // [4] means twice diferentiated x+ u + v
+  double k1[15][2];
   double k2[15][2];
   double k3[15][2];
   double k4[15][2];
@@ -433,7 +430,6 @@ int Taga1991::next(void)
   double u_esc[15], v_esc[15];
   double x_esc[15], xd_esc[15];
   
-	 
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n[DEBUG] just entered next()");
 	dump();

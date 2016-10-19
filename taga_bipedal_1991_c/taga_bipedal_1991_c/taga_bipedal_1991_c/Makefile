@@ -6,7 +6,7 @@
 
 CC = g++
 LINK = -lm 
-FLAG = -v -Wall
+FLAG = -v -Wall -O3
 
 all: taga.o taga1991.o gauss_jordan.o
 	$(CC) -o taga $^ $(LINK) 
