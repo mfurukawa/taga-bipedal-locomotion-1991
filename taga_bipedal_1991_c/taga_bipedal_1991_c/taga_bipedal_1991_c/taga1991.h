@@ -101,11 +101,10 @@ private:
 	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
 	double xr_d, yr_d, xl_d, yl_d;
+	int flag_r, flag_l;
 
 	double ud  [15];
 	double vd  [15];
-	double tau [13]; // time constants of the inner state
-	double taud[13]; // the adaptation effect
 
 
 	// C. Feedback pathway
@@ -121,8 +120,6 @@ private:
 	double m1, m2;
 	double l1, l2;
 	double I1, I2;
-	double b1, b2;
-	double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae;
 	
 	// neural rhythm generator
 
@@ -130,9 +127,6 @@ private:
 	double w[13][13];  // a connecting weight
 	double w_fe, w_rl, w_hka;
 
-	// feedback
-
-	double a[9];
 
 	int update(void);
 	double f(double x);
@@ -140,15 +134,23 @@ private:
 	double yg(double x);
 
 public:
+	// feedback
+	double a[9];
+
+	double tau [13]; // time constants of the inner state
+	double taud[13]; // the adaptation effect
+	double b1, b2;
 	double dt;
 	double x  [15];
 	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
+	double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae;
 	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
 	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
 
 	Taga1991();
 	~Taga1991();
 
+	void init(void);
 	int next(void);
 	int dump(void);
 };
