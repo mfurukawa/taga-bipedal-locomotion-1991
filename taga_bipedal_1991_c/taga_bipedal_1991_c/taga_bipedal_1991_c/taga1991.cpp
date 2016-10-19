@@ -399,62 +399,24 @@ int Taga1991::update(void)
 			}
 		}
 	}
-
-		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8]\n\n");
-		//for (int k = 1; k <= 14; k++)
-		//	for (int j = 1; j <= 8; j++)
-		//		printf("%4.2e\t", Pinv_CP[k][j]);
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) \n\n");
-#endif
-
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	for (int j = 1; j <= 8; j++) { 				// row idx for CP
 		CQ[j] = 0.0;
 		for (int i = 1; i <= 14; i++){
 		  CQ[j] += C[j][i] * Q[i];
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-		  printf("\t\tCQ[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, CQ[j], C[j][i] , Q[i]);
-#endif
 		}
 	}
-
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  \n\n");
-		  printf("\tDCQ[8][1] = \tD[8][1]   - \tCQ[8][1] \n\n");
-		for (int j = 1; j <= 8; j++)
-		  printf("\t% 4.2e\t% 4.2e\t% 4.2e\n", DCQ[j], D[j], CQ[j]);
-
-		printf("\n [DEBUG] XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))\n\n");
-#endif
-
 	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
 	for (int j = 1; j <= 14; j++) { 				// row idx for CP
 		xdd[j] = Q[j];
 		for (int i = 1; i <= 8; i++){
 			xdd[j] += Pinv_CP[j][i] * DCQ[i];
-#ifdef __DUMP_MATRIX__TAGA1991__
-			printf("\t\txdd[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, xdd[j], Pinv_CP[j][i] , DCQ[i]);
-#endif
 		}
 	}
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8] \n\n");
-	for (int k = 1; k <= 14; k++) {
-	  for (int j = 1; j <= 8; j++)
-		printf("\t% 1.0e", Pinv_CP[k][j]);
-	  printf("\n");
-	}
-
-	printf("\n[DEBUG] return update()\n\n\n\n\n\n");
-#endif
 
 	//exit(1);
 	return 1;
