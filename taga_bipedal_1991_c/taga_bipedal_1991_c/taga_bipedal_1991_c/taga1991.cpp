@@ -6,6 +6,9 @@
 // m.furukawa@ist.osaka-u.ac.jp
 //
 // rev 0.0, Created,  Oct 13, 2016-
+//
+// reference: 
+// http://www.birl.ethz.ch/education/open_resource
 
 #include <stdio.h>
 #include <memory.h>
@@ -63,7 +66,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 5.5; // Fig 5A
+	u[0] = 5.6; // Fig 5A
 
 	init();
 }
@@ -219,8 +222,8 @@ int Taga1991::update(void)
 	Tr2 = p_he*y[4] - p_hf*y[3];
 	Tr3 = p_ke*y[6] - p_kf*y[5];
 	Tr4 = p_ke*y[8] - p_kf*y[7];
-	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
-	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
+	Tr5 = 0;//(p_ae*y[10] - p_af*y[9]) *h(Fg2);
+	Tr6 = 0;//(p_ae*y[12] - p_af*y[11])*h(Fg4);
 
 	// Feedback pathway
 
