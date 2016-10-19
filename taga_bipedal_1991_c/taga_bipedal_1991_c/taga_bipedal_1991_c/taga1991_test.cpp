@@ -29,7 +29,7 @@ int main() {
 		  exit(0); 
 		}
 
-		if(t>=2){ 
+		if(t>=4){ 
 		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
 		  exit(1);
 		  i--;

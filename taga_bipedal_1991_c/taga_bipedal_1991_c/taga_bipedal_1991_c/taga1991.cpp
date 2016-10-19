@@ -34,19 +34,19 @@ Taga1991::Taga1991()
 	kg = 10000.0; bg = 1000.0;
 	p_hf = 15.0;  p_he = 85.0;  
 	p_kf = 15.0;  p_ke = 15.0;  
-	p_af = 90;  p_ae = 180; // 200
+	p_af = 60;  p_ae = 140; // 200
 
 	// dt is time division in second
-	dt = 0.0002;
+	dt = 0.00005;
 
 	// neural rhythm generator
 
 	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
 	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
 
-	tau [1] = tau [2] = tau [3] = tau [4] = 0.091;
+	tau [1] = tau [2] = tau [3] = tau [4] = 0.090;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.091/2.0;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.090/2.0;
 	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
 	beta = 2.5;
 
@@ -66,7 +66,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 3.2; // Fig 5A
+	u[0] = 5.0; // Fig 5A
 
 	init();
 }
@@ -189,6 +189,8 @@ int Taga1991::update(void)
 	if (yr - yg(xr) < 0.0) {
 	  if(!flag_r) {
 		flag_r = 1;
+		xr0 = xr;
+		yr0 = yr;
 	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
@@ -196,14 +198,14 @@ int Taga1991::update(void)
 	else {
 		Fg1 = 0.0;
 		Fg2 = 0.0;
-		xr0 = xr;
-		yr0 = yr;
 		flag_r = 0;
 	}
 
 	if (yl - yg(xl) < 0.0) {
 	  if(!flag_l) {
 		flag_l = 1;
+		xl0 = xl;	
+		yl0 = yl; 
 	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
@@ -211,8 +213,6 @@ int Taga1991::update(void)
 	else {
 		Fg3 = 0.0;
 		Fg4 = 0.0;
-		xl0 = xl;	
-		yl0 = yl; 
 		flag_l = 0;
 	}
 
