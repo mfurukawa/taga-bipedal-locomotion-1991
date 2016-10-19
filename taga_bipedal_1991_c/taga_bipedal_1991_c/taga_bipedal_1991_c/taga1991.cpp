@@ -9,6 +9,9 @@
 
 #include <stdio.h>
 #include <memory.h>
+
+
+
 #include <stdlib.h>
 #include "taga1991.h"
 
@@ -16,47 +19,6 @@
 
 Taga1991::Taga1991()
 {
-  // A. The equations of motion for the bipedal musculo-skeletal system
-  Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
-  Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
-  memset(&x[0],   0x00,sizeof(x));
-  memset(&xd[0],  0x00,sizeof(xd));
-  memset(&xdd[0], 0x00,sizeof(xdd));
-  memset(&y[0],   0x00,sizeof(y)); // the output of the i-th neuron. (6)
-  // Newton-Eular method
-  memset(&P[0][0],0x00,sizeof(P)); // position
-  memset(&Q[0],   0x00,sizeof(Q));    // feedback etc
-  memset(&C[0][0],0x00,sizeof(C)); // constraint
-  memset(&D[0],   0x00,sizeof(D));     // constraint
-  memset(&CQ[0],  0x00,sizeof(CP)); 
-  memset(&DCQ[0], 0x00,sizeof(DCQ)); 
-  memset(&CP[0][0],0x00,sizeof(CP));
-  memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
-  memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
-  
-  xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0;
-  xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
-  
-  memset(&u[0] ,0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
-  memset(&ud[0],0x00,sizeof(ud));
-  memset(&v[0] ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-  memset(&vd[0],0x00,sizeof(vd));
-  memset(&tau[0],0x00,sizeof(tau)); // time constants of the inner state
-  memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
-  // C. Feedback pathway
-  // Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
-  memset(&Feed[0],0x00,sizeof(Feed));
-  // D. Simlumation Parameters
-  // neural rhythm generator
-  memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
-  // feedback
-  memset(&a,0x00,sizeof(a));
-
-	// dt is time division in second
-	dt = 0.0001;
-
-	u[0] = 5.5; // Fig 5A
-
 	// D. Simlumation Parameters
 
 	// Musculo-skeletal system
@@ -67,16 +29,28 @@ Taga1991::Taga1991()
 	b1 = 10.0;  b2 = 10.0;  bk = 1000.0;
 	kk = 10000.0; g = 9.8;
 	kg = 10000.0; bg = 1000.0;
-	p_hf = 15.0;  p_he = 85.0;  p_kf = 15.0;
-	p_ke = 15.0;  p_af = 100.0; p_ae = 75.0;
+	p_hf = 15.0;  p_he = 85.0;  
+	p_kf = 15.0;  p_ke = 15.0;  
+	p_af = 100.0;  p_ae = 75.0; // 200
+
+	// dt is time division in second
+	dt = 0.0002;
 
 	// neural rhythm generator
 
+	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
+	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
+
 	tau [1] = tau [2] = tau [3] = tau [4] = 0.05;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = 0.025;
-	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = 0.30;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = tau [1] / 2.0;//0.025;
+	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = taud[1] / 2.0;//0.30;
 	beta = 2.5;
+
+	// D. Simlumation Parameters
+	// neural rhythm generator
+
+	memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
 
 	w[1][2] = w[2][1] = w[3][4] = w[4][3] = w[5][6] = w[6][5] = w[7][8] = w[8][7] = w[9][10] = w[10][9] = w[11][12] = w[12][11] = w_fe = -2.0;
 	w[1][3] = w[3][1] = w[2][4] = w[4][2] = w_rl = -1.0;
@@ -84,10 +58,45 @@ Taga1991::Taga1991()
 
 	// feedback
 
+	memset(&a,0x00,sizeof(a));
+
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	// E. Initial condotion
+	u[0] = 5.5; // Fig 5A
+
+	init();
+}
+void Taga1991::init()
+{
+  // Newton-Eular method
+  memset(&D[0],         0x00,sizeof(D));     // constraint
+  memset(&CQ[0],        0x00,sizeof(CP)); 
+  memset(&DCQ[0],       0x00,sizeof(DCQ)); 
+  memset(&CP[0][0],     0x00,sizeof(CP));
+  memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
+  memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
+  
+  memset(&u[1] ,0x00,sizeof(u)-1); // the inner state of the i-th neuron. u0 is an external input with a constant rate
+  memset(&ud[0],0x00,sizeof(ud));
+  memset(&v[0] ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+  memset(&vd[0],0x00,sizeof(vd));
+
+  // C. Feedback pathway
+
+  // Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
+  memset(&Feed[0],0x00,sizeof(Feed));
+
+  // A. The equations of motion for the bipedal musculo-skeletal system
+  Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
+  Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
+
+  // E. Initial condotion
+
+  memset(&  x[0], 0x00,sizeof(x));
+  memset(& xd[0], 0x00,sizeof(xd));
+  memset(&xdd[0], 0x00,sizeof(xdd));
+  memset(&  y[0], 0x00,sizeof(y)); // the output of the i-th neuron. (6)
 
 	x1 = 0.0;
 	x2 = 1.09;
@@ -102,12 +111,19 @@ Taga1991::Taga1991()
 	x12 = l1 * c8 + (l2 / 2.0)*c14;
 	x13 = x2 - l1 * s8 - (l2 / 2.0)*s14;
 	
+  xr = 0.0; yr = 0.0; xl = 0.0; yl = 0.0;
+  xr_d = 0.0; yr_d = 0.0; xl_d = 0.0; yl_d = 0.0;
+
 	xr = xr0 = x9 + (l2 / 2.0)*c11;
 	yr = yr0 = x10 - (l2 / 2.0)*s11;
 	xl = xl0 = x12 + (l2 / 2.0)*c14;
 	yl = yl0 = x13 - (l2 / 2.0)*s14;
+	flag_r = 0;
+	flag_l = 0;
 
 	// init P[14][8]
+
+	memset(&P[0][0],0x00,sizeof(P)); // position
 
 	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
 	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
@@ -126,14 +142,16 @@ Taga1991::Taga1991()
 
 	// init Q[14]
 
+	memset(&Q[0],   0x00,sizeof(Q));    // feedback etc
+
 	Q[2] = Q[4] = Q[7] = Q[10] = Q[13] = -g;
 
 	// init C[8][14]
 
+	memset(&C[0][0],0x00,sizeof(C)); // constraint
+
 	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
-
-
 }
 
 int Taga1991::update(void)
@@ -166,25 +184,33 @@ int Taga1991::update(void)
 	// Horizontal and vertical forces on the ankles are given by:
 
 	if (yr - yg(xr) < 0.0) {
+	  if(!flag_r) {
+		xr0 = xr;
+		yr0 = yr;
+		flag_r = 1;
+	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
 	}
 	else {
 		Fg1 = 0.0;
 		Fg2 = 0.0;
-		xr0 = xr;
-		yr0 = yr;
+		flag_r = 0;
 	}
 
 	if (yl - yg(xl) < 0.0) {
+	  if(!flag_l) {
+		xl0 = xl;	
+		yl0 = yl; 
+		flag_l = 1;
+	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
 	}
 	else {
 		Fg3 = 0.0;
 		Fg4 = 0.0;
-		xl0 = xl;
-		yl0 = yl;
+		flag_l = 0;
 	}
 
 	// Torques generated at each joint are given by:
@@ -198,18 +224,18 @@ int Taga1991::update(void)
 
 	// Feedback pathway
 
-	Feed1 = a1 * (x5 - M_PI / 2.0) - a2 * (x8 - M_PI / 2.0) + a3 * (x11 - M_PI / 2.0)*h(Fg2) + a4 * h(Fg4);
-	Feed2 = a1 * (M_PI / 2.0 - x5) - a2 * (M_PI / 2.0 - x8) + a3 * (M_PI / 2.0 - x11)*h(Fg2) + a4 * h(Fg4);
-	Feed3 = a1 * (x8 - M_PI / 2.0) - a2 * (x5 - M_PI / 2.0) + a3 * (x14 - M_PI / 2.0)*h(Fg4) + a4 * h(Fg2);
-	Feed4 = a1 * (M_PI / 2.0 - x8) - a2 * (M_PI / 2.0 - x5) + a3 * (M_PI / 2.0 - x14)*h(Fg4) + a4 * h(Fg2);
-	Feed5 = a5 * (M_PI / 2.0 - x14)*h(Fg4);
-	Feed6 = a5 * (x14 - M_PI / 2.0)*h(Fg4);
-	Feed7 = a5 * (M_PI / 2.0 - x11)*h(Fg2);
-	Feed8 = a5 * (x11 - M_PI / 2.0)*h(Fg2);
-	Feed9 =  a6 * (M_PI / 2.0 - x11)*h(Fg2) + a7 * (M_PI / 2.0 - x14)*h(Fg4) - a8 * xd11 * h(Fg2);
-	Feed10 = a6 * (x11 - M_PI / 2.0)*h(Fg2) + a7 * (x14 - M_PI / 2.0)*h(Fg4) + a8 * xd11 * h(Fg2);
-	Feed11 = a6 * (M_PI / 2.0 - x14)*h(Fg4) + a7 * (M_PI / 2.0 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
-	Feed12 = a6 * (x14 - M_PI / 2.0)*h(Fg4) + a7 * (x11 - M_PI / 2.0)*h(Fg2) + a8 * xd14 * h(Fg4);
+	Feed1 = a1 * (x5 - M_PI_2) - a2 * (x8 - M_PI_2) + a3 * (x11 - M_PI_2)*h(Fg2) + a4 * h(Fg4);
+	Feed2 = a1 * (M_PI_2 - x5) - a2 * (M_PI_2 - x8) + a3 * (M_PI_2 - x11)*h(Fg2) + a4 * h(Fg4);
+	Feed3 = a1 * (x8 - M_PI_2) - a2 * (x5 - M_PI_2) + a3 * (x14 - M_PI_2)*h(Fg4) + a4 * h(Fg2);
+	Feed4 = a1 * (M_PI_2 - x8) - a2 * (M_PI_2 - x5) + a3 * (M_PI_2 - x14)*h(Fg4) + a4 * h(Fg2);
+	Feed5 = a5 * (M_PI_2 - x14)*h(Fg4);
+	Feed6 = a5 * (x14 - M_PI_2)*h(Fg4);
+	Feed7 = a5 * (M_PI_2 - x11)*h(Fg2);
+	Feed8 = a5 * (x11 - M_PI_2)*h(Fg2);
+	Feed9 =  a6 * (M_PI_2 - x11)*h(Fg2) + a7 * (M_PI_2 - x14)*h(Fg4) - a8 * xd11 * h(Fg2);
+	Feed10 = a6 * (x11 - M_PI_2)*h(Fg2) + a7 * (x14 - M_PI_2)*h(Fg4) + a8 * xd11 * h(Fg2);
+	Feed11 = a6 * (M_PI_2 - x14)*h(Fg4) + a7 * (M_PI_2 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
+	Feed12 = a6 * (x14 - M_PI_2)*h(Fg4) + a7 * (x11 - M_PI_2)*h(Fg2) + a8 * xd14 * h(Fg4);
 	
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n [DEBUG] int Taga1991::update(void)  >  Feed[12]\n\n");
@@ -264,8 +290,8 @@ int Taga1991::update(void)
 	P[14][8] = -l2*c14 / 2.0 / I2;
 
 	// Q[14]
-	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
-	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI / 2.0)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
+	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
+	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
 	Q[9]  = Fg1 / m2;
 	Q[10] = Fg2 / m2;
 	Q[11] = (-Tr3 - Tr5 -(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11)) / I2;
@@ -274,12 +300,12 @@ int Taga1991::update(void)
 	Q[14] = (-Tr4 - Tr6 -(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14)) / I2;
 
 #ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n\tQ[5] = (-b1*fabs(x5 - M_PI / 2.0)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;\n\n");
+	printf("\n\tQ[5] = (-b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;\n\n");
 	printf("\tQ[5]      % 1.4e\n",Q[5]);
 	printf("\tb1        % 1.4e\n",b1);
 	printf("\tx5        % 1.4e\n",x5);
-	printf("\t     x5 - M_PI / 2.0         % 1.4e\n",x5 - M_PI / 2.0);
-	printf("\tfabs(x5 - M_PI / 2.0)        % 1.4e\n",fabs(x5 - M_PI / 2.0));
+	printf("\t     x5 - M_PI_2         % 1.4e\n",x5 - M_PI_2);
+	printf("\tfabs(x5 - M_PI_2)        % 1.4e\n",fabs(x5 - M_PI_2));
 	printf("\txd5       % 1.4e\n",xd5);
 	printf("\tb2        % 1.4e\n",b2);
 	printf("\tbk        % 1.4e\n",bk);
@@ -600,7 +626,7 @@ Taga1991::~Taga1991()
 
 double Taga1991::f(double x)  
 {
-  if (x<0.0) return 0.0; // max(0,x);
+  if (x<=0.0) return 0.0; // max(0,x);
   else return x; 
 } 
 
