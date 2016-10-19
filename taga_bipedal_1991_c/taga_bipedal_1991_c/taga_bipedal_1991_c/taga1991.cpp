@@ -189,13 +189,13 @@ int Taga1991::update(void)
 	if (yr - yg(xr) < 0.0) {
 	  if(!flag_r) {
 		flag_r = 1;
-		xr0 = xr;
-		yr0 = yr;
 	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
 	}
 	else {
+		xr0 = xr;
+		yr0 = yr;
 		Fg1 = 0.0;
 		Fg2 = 0.0;
 		flag_r = 0;
@@ -204,13 +204,13 @@ int Taga1991::update(void)
 	if (yl - yg(xl) < 0.0) {
 	  if(!flag_l) {
 		flag_l = 1;
-		xl0 = xl;	
-		yl0 = yl; 
 	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
 	}
 	else {
+		xl0 = xl;	
+		yl0 = yl; 
 		Fg3 = 0.0;
 		Fg4 = 0.0;
 		flag_l = 0;
