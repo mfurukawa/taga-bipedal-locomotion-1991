@@ -21,15 +21,25 @@ int main() {
 	Taga1991 taga1991;
 	double t = 0.0;
 
-	for (int i = 0; i < 100000; i++) 
+	for (int i = 0; i < 300000; i++) 
 	{
+
 		if(taga1991.x[2] <= -2){ 
 		  fprintf(stderr, "\nfall down x[2] got less than ground level in cycle [i] : %d\n",i); 
 		  exit(0); 
 		}
-		if(t>2.0){ 
+
+		if(t>=2){ 
 		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
-		  exit(0); 
+		  exit(1);
+		  i--;
+ 		  taga1991.init();
+		  taga1991.u[0] = 5.5;
+		  for(int j = 5; j<=12; j++) taga1991.taud[j] = (double)i/(double)2000000.0 + 0.03;
+		  //for(int j = 1; j<=4; j++) taga1991.taud[j] = (double)i/(double)100000.0 + 0.5;
+		  fprintf(stderr, "\nparam %lf", taga1991.taud[12]); 
+
+ 		  t=0.0;
 		}
 
 		// time : 1
@@ -60,6 +70,7 @@ int main() {
 		}
 
 		t += taga1991.dt;
+
 	}
 	return 0;
 }
