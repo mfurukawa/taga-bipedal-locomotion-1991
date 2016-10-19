@@ -598,7 +598,7 @@ double Taga1991::h(double x)
 
 double Taga1991::yg(double x) 
 {
-  return x*0.03;//0.0; 
+  return x*0.00;//0.0; 
 }
 
 
