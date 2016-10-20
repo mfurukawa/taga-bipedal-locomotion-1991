@@ -12,9 +12,6 @@
 
 #include <stdio.h>
 #include <memory.h>
-
-
-
 #include <stdlib.h>
 #include "taga1991.h"
 
@@ -72,27 +69,11 @@ Taga1991::Taga1991()
 }
 void Taga1991::init()
 {
-  // Newton-Eular method
-  memset(&D[0],         0x00,sizeof(D));     // constraint
-  memset(&CQ[0],        0x00,sizeof(CP)); 
-  memset(&DCQ[0],       0x00,sizeof(DCQ)); 
-  memset(&CP[0][0],     0x00,sizeof(CP));
-  memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
-  memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
-  
   memset(&u[1] ,0x00,sizeof(u)-1); // the inner state of the i-th neuron. u0 is an external input with a constant rate
   memset(&ud[0],0x00,sizeof(ud));
   memset(&v[0] ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
   memset(&vd[0],0x00,sizeof(vd));
 
-  // C. Feedback pathway
-
-  // Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
-  memset(&Feed[0],0x00,sizeof(Feed));
-
-  // A. The equations of motion for the bipedal musculo-skeletal system
-  Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
-  Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
 
   // E. Initial condotion
 
@@ -123,46 +104,10 @@ void Taga1991::init()
 	yl = yl0 = x13 - (l2 / 2.0)*s14;
 	flag_r = 0;
 	flag_l = 0;
-
-	// init P[14][8]
-
-	memset(&P[0][0],0x00,sizeof(P)); // position
-
-	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
-	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
-	P[3][1] = -1.0 / m1;	P[3][5] = 1.0 / m1;
-	P[4][2] = -1.0 / m1;	P[4][6] = 1.0 / m1;
-
-	P[6][3] = -1.0 / m1;	P[6][7] = 1.0 / m1;
-	P[7][4] = -1.0 / m1;	P[7][8] = 1.0 / m1;
-
-	P[9][5] = -1.0 / m2;
-	P[10][6] = -1.0 / m2;
-
-	P[12][7] = -1.0 / m2;
-	P[13][8] = -1.0 / m2;
-
-
-	// init Q[14]
-
-	memset(&Q[0],   0x00,sizeof(Q));    // feedback etc
-
-	Q[2] = Q[4] = Q[7] = Q[10] = Q[13] = -g;
-
-	// init C[8][14]
-
-	memset(&C[0][0],0x00,sizeof(C)); // constraint
-
-	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
-	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
 }
 
 int Taga1991::update(void)
 {
-#ifdef __DUMP_MATRIX__TAGA1991__
-  printf("\n\n\n\n\n\n");
-#endif
-
 	// yi is the output of ith neuron 
 	// see also equation (6) 
 
@@ -179,23 +124,25 @@ int Taga1991::update(void)
 	yl = x13 - (l2 / 2.0)*s14;
 
 	xr_d = xd9  - (l2 / 2.0)*s11*xd11;
-	yr_d = xd10 + (l2 / 2.0)*c11*xd11;
+	yr_d = xd10 - (l2 / 2.0)*c11*xd11; // debugged
 	xl_d = xd12 - (l2 / 2.0)*s14*xd14;
-	yl_d = xd13 + (l2 / 2.0)*c14*xd14;
+	yl_d = xd13 - (l2 / 2.0)*c14*xd14; // debugged
 
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
 
+	Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
+
 	if (yr - yg(xr) < 0.0) {
 	  if(!flag_r) {
 		flag_r = 1;
-		xr0 = xr;
-		yr0 = yr;
 	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
 	}
 	else {
+  		xr0 = xr;
+		yr0 = yr;
 		Fg1 = 0.0;
 		Fg2 = 0.0;
 		flag_r = 0;
@@ -204,19 +151,21 @@ int Taga1991::update(void)
 	if (yl - yg(xl) < 0.0) {
 	  if(!flag_l) {
 		flag_l = 1;
-		xl0 = xl;	
-		yl0 = yl; 
 	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
 	}
 	else {
+		xl0 = xl;	
+		yl0 = yl; 
 		Fg3 = 0.0;
 		Fg4 = 0.0;
 		flag_l = 0;
 	}
 
 	// Torques generated at each joint are given by:
+
+	Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
 
 	Tr1 = p_he*y[2] - p_hf*y[1];
 	Tr2 = p_he*y[4] - p_hf*y[3];
@@ -226,6 +175,8 @@ int Taga1991::update(void)
 	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
 
 	// Feedback pathway
+
+	memset(&Feed[0],0x00,sizeof(Feed));
 
 	Feed1 = a1 * (x5 - M_PI_2) - a2 * (x8 - M_PI_2) + a3 * (x11 - M_PI_2)*h(Fg2) + a4 * h(Fg4);
 	Feed2 = a1 * (M_PI_2 - x5) - a2 * (M_PI_2 - x8) + a3 * (M_PI_2 - x11)*h(Fg2) + a4 * h(Fg4);
@@ -240,19 +191,6 @@ int Taga1991::update(void)
 	Feed11 = a6 * (M_PI_2 - x14)*h(Fg4) + a7 * (M_PI_2 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
 	Feed12 = a6 * (x14 - M_PI_2)*h(Fg4) + a7 * (x11 - M_PI_2)*h(Fg2) + a8 * xd14 * h(Fg4);
 	
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  >  Feed[12]\n\n");
-	for(int i=1; i<=12; i++) 
-	  printf("\t% 4.2e", Feed[i]);
-	printf("\n");
-#endif
-
-	// neural rhythm generator - differential equations
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  >  ud[12], vd[12]\n\n");
-#endif
-
 	for (int i = 1; i <= 12; i++) {
 		ud[i] = -u[i];
 		for (int j = 1; j <= 12; j++)
@@ -264,17 +202,26 @@ int Taga1991::update(void)
 		vd[i] = (-v[i] + y[i]) / taud[i];
 	}
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\tud[12]\t\tvd[12]\n\n");
-	for(int i=1; i<=12; i++)   
-	  printf("\t% 4.2e\t% 4.2e\n", ud[i],vd[i]);	
-#endif
-
-
 	// P[14][8]
 	// The equations of motion of the bipedal musculo-skeletal system are derivered 
 	// using the Newton-Euler method. All variables and conventions correspond to 
 	// those shown in Fig.2 and Fig. 12.
+
+	memset(&P[0][0],0x00,sizeof(P)); 
+
+	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
+	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
+	P[3][1] = -1.0 / m1;	P[3][5] = 1.0 / m1;
+	P[4][2] = -1.0 / m1;	P[4][6] = 1.0 / m1;
+
+	P[6][3] = -1.0 / m1;	P[6][7] = 1.0 / m1;
+	P[7][4] = -1.0 / m1;	P[7][8] = 1.0 / m1;
+
+	P[9][5] = -1.0 / m2;
+	P[10][6] = -1.0 / m2;
+
+	P[12][7] = -1.0 / m2;
+	P[13][8] = -1.0 / m2;
 
 	P[5][1] = -l1*s5 / 2.0 / I1;
 	P[5][2] = -l1*c5 / 2.0 / I1;
@@ -292,42 +239,28 @@ int Taga1991::update(void)
 	P[14][7] = -l2*s14 / 2.0 / I2;
 	P[14][8] = -l2*c14 / 2.0 / I2;
 
-	// Q[14]
-	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
-	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk*f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
-	Q[9]  = Fg1 / m2;
-	Q[10] = Fg2 / m2;
-	Q[11] = (-Tr3 - Tr5 -(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11)) / I2;
+	// Q[14]  feedback etc
+
+	memset(&Q[0],   0x00,sizeof(Q));
+
+	Q[2] = -g;
+	Q[4] = -g;
+	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*h(x5 - x11))*(xd5 - xd11) - kk*f(x5 - x11)) / I1;
+	Q[7] = -g; // debug
+	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk*h(x8 - x14))*(xd8 - xd14) - kk*f(x8 - x14)) / I1;
+	Q[9] =  Fg1 / m2;
+	Q[10] = Fg2 / m2 - g;
+	Q[11] = (-Tr3 - Tr5 -(b2 + bk*h(x5 - x11))*(xd11 - xd5) + kk*f(x5 - x11)) / I2;
 	Q[12] = Fg3 / m2;
-	Q[13] = Fg4 / m2;
-	Q[14] = (-Tr4 - Tr6 -(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14)) / I2;
+	Q[13] = Fg4 / m2 - g;
+	Q[14] = (-Tr4 - Tr6 -(b2 + bk*h(x8 - x14))*(xd14 - xd8) + kk*f(x8 - x14)) / I2;
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n\tQ[5] = (-b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11) + Tr1 + Tr3) / I1;\n\n");
-	printf("\tQ[5]      % 1.4e\n",Q[5]);
-	printf("\tb1        % 1.4e\n",b1);
-	printf("\tx5        % 1.4e\n",x5);
-	printf("\t     x5 - M_PI_2         % 1.4e\n",x5 - M_PI_2);
-	printf("\tfabs(x5 - M_PI_2)        % 1.4e\n",fabs(x5 - M_PI_2));
-	printf("\txd5       % 1.4e\n",xd5);
-	printf("\tb2        % 1.4e\n",b2);
-	printf("\tbk        % 1.4e\n",bk);
-	printf("\tf(x5-x11) % 1.4e\n",f(x5-x11));
-	printf("\txd5-xd11  % 1.4e\n",(xd5-xd11));
-	printf("\tx11       % 1.4e\n",x11);
-	printf("\txd11      % 1.4e\n",xd11);
-	printf("\th(x5-x11) % 1.4e\n",h(x5-x11));
-	printf("\tkk        % 1.4e\n",kk);
-	printf("\tTr1       % 1.4e\n",Tr1);
-	printf("\tTr3       % 1.4e\n",Tr3);
-	printf("\tI1        % 1.4e\n",I1);
+	// C[8][14]  constraint
 
-	printf("\n [DEBUG] int Taga1991::update(void)  >  Q[14]\n\n");
-	for (int k = 1; k <= 14; k++)		printf("\t% 4.2e\n", Q[k]);
-#endif
+	memset(&C[0][0],0x00,sizeof(C)); 
 
-	// C[8][14]
-
+	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
+	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
 	C[1][5] = -l1*s5 / 2.0;
 	C[2][5] = -l1*c5 / 2.0;
 	C[3][8] = -l1*s8 / 2.0;
@@ -338,6 +271,8 @@ int Taga1991::update(void)
 	C[8][8] = -l1*c8 / 2.0;		C[8][14] = -l2*c14 / 2.0;
 
 	// D[8][1]
+
+	memset(&D[0],         0x00,sizeof(D));     // constraint
 
 	D[1] =   l1*c5*xd52 / 2.0;
 	D[2] =  -l1*s5*xd52 / 2.0;
@@ -351,6 +286,10 @@ int Taga1991::update(void)
 	// neuton-eular method - differential equations
 
 	// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
+	
+	memset(&CP[0][0],     0x00,sizeof(CP));
+	memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
+
 	for (int k = 1; k <= 8; k++) { 				// row idx for CP
 		for (int j = 1; j <= 8; j++) {			// col idx for CP
 			CP[k][j] = 0.0;
@@ -363,34 +302,16 @@ int Taga1991::update(void)
 		}
 	}
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void) \n");
-	printf("\n\tP[14][8]\n\n");	for (int k = 1; k <= 14; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", P[k][j]);		printf("\n");	}
-	printf("\n\tC[8][14]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 14; j++)	printf("\t% 1.0e", C[k][j]);		printf("\n");	}
-	printf("\n\tCP[8][8]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", CP[k][j]);	printf("\n");	}
-	//	printf("\n\tinv_CP[8][8]\n\n");	for (int k = 1; k <= 8; k++){	for (int j = 1; j <= 8; j++)	printf("\t% 1.0e", inv_CP[k][j]);	printf("\n");	}
-#endif
-
 	// inv_CP[8][8] = CP[8][8]^-1 | calculate inverce matrix with gauss-jordan method
+
 	if (!gauss_jordan(8, inv_CP, b)) return 0;
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  >  gauss_jordan(8, inv_CP, b)  >  inv_CP[i][j]\n\n");
-	for (int k = 1; k <= 8; k++) {	 for (int j = 1; j <= 8; j++) 	printf("\t% 1.0e", inv_CP[k][j]); printf("\n"); }
-
-	printf("\n [DEBUG] int Taga1991::update(void)  >  inv_CP[8][8] * CP[8][8]\n\n");
-	for (int k = 1 ; k <= 8; k++){
-	  for (int j = 1; j <= 8; j++){
-		double tmp = 0.0;
-		for (int i = 1; i <= 8; i++)
-		  tmp += inv_CP[k][i] * CP[i][j];
-		printf("\t% 1.3f", tmp);
-	  }
-	  printf("\n");
-	}
-#endif
-
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
+	
+	memset(&CQ[0],        0x00,sizeof(CP)); 
+	memset(&DCQ[0],       0x00,sizeof(DCQ)); 
+	memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
+
 	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;
 		for (int i = 1; i <= 14; i++)
@@ -410,9 +331,10 @@ int Taga1991::update(void)
 
 	// XDD[14][1] = P[14][8] * (inv_CP)D[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
 	for (int j = 1; j <= 14; j++) {
-		xdd[j] = Q[j];
+		xdd[j] = 0.0;
 		for (int i = 1; i <= 8; i++)
 			xdd[j] += P[j][i] * inv_CP_D[i];
+		xdd[j] += Q[j];
 	}
 
 	return 1;
@@ -449,40 +371,31 @@ int Taga1991::next(void)
 		 v[i] += k1[i][1] / 2.0 * dt;
 		 x[i] += k1[i][2] / 2.0 * dt;
 		xd[i] += k1[i][3] / 2.0 * dt;
-
-		 //x[i] =  x_esc[i] + betan[i]; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3]
-		 //xd[i] = xd_esc[i] + An[i];    // yn' + An : An = k1[i][3]
 	}
 
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
-		// calc second coefficient k2 |  u[13][14] are dummy
 		k2[i][0] = ud[i];
 		k2[i][1] = vd[i];
 		k2[i][2] = xd[i];
 		k2[i][3] =xdd[i];
 
-		//Bn[i] = xdd[i] * dt * 0.5; //  Bn = kf(xn + k, yn + betan, yn' + An)), xd[i] = yn' + An | Bn = k2[i][3]
-
-		// set next estimation state
 		 u[i] =  u_esc[i] + k2[i][0] / 2.0 * dt;
 		 v[i] =  v_esc[i] + k2[i][1] / 2.0 * dt;
-		 x[i] =  x_esc[i] + k2[i][2] / 2.0 * dt;//betan[i]; // yn + betan : betan = k(yn' + An/2) | An = k1[i][3], 
-		xd[i] = xd_esc[i] + k2[i][3] / 2.0 * dt;//Bn[i];    // yn' + Bn : Bn = k2[i][3]
+		 x[i] =  x_esc[i] + k2[i][2] / 2.0 * dt;
+		xd[i] = xd_esc[i] + k2[i][3] / 2.0 * dt;
 	}
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
-		// calc second coefficient k3 |  u[13][14] are dummy
 		k3[i][0] = ud[i];
 		k3[i][1] = vd[i];
 		k3[i][2] = xd[i];
 		k3[i][3] =xdd[i];
 
-		// set next estimation state
  		 u[i] =  u_esc[i] + k3[i][0] * dt;
 		 v[i] =  v_esc[i] + k3[i][1] * dt;
  		 x[i] =  x_esc[i] + k3[i][2] * dt;
@@ -492,7 +405,6 @@ int Taga1991::next(void)
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 
 	for (int i = 1; i <= 14; i++) {
-		// calc second coefficient k4 |  u[13][14] are dummy
 		k4[i][0] = ud[i];
 		k4[i][1] = vd[i];
 		k4[i][2] = xd[i];
@@ -501,8 +413,8 @@ int Taga1991::next(void)
 		// update state
 		u[i] =  u_esc[i] + ((k1[i][0] + 2.0*k2[i][0] + 2.0*k3[i][0] + k4[i][0]) / 6.0 ) * dt; // u[13][14] are dummy
 		v[i] =  v_esc[i] + ((k1[i][1] + 2.0*k2[i][1] + 2.0*k3[i][1] + k4[i][1]) / 6.0 ) * dt; // u[13][14] are dummy
-		x[i] =  x_esc[i] + ((k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0 ) * dt; //dt * (xd_esc[i] + (An[i] + Bn[i] + Cn[i]) / 3.0 ); 
-	   xd[i] = xd_esc[i] + ((k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0 ) * dt; //xd_esc[i] + (An[i] + 2.0*Bn[i] + 2.0*Cn[i] + Dn[i]) / 3.0;
+		x[i] =  x_esc[i] + ((k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0 ) * dt; 
+	   xd[i] = xd_esc[i] + ((k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0 ) * dt; 
 	}
 	return 1;
 }
@@ -532,8 +444,8 @@ double Taga1991::f(double x)
 
 double Taga1991::h(double x) 
 {
-  if (x<=0.0) return 0.0; 
-  else return 1.0; 
+  if (x > 0.0) return 1.0; 
+  else return 0.0; 
 }
 
 double Taga1991::yg(double x) 
