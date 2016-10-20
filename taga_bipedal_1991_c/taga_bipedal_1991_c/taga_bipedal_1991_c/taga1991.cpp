@@ -34,7 +34,7 @@ Taga1991::Taga1991()
 	p_af = 100.0;  p_ae = 75.0;
 
 	// dt is time division in second
-	dt = 0.00025;
+	dt = 0.0001;
 
 	// neural rhythm generator
 
@@ -63,7 +63,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 5.5; // Fig 5A
+	u[0] = 5.6; // Fig 5A
 
 	init();
 }
@@ -102,8 +102,6 @@ void Taga1991::init()
 	yr = yr0 = x10 - (l2 / 2.0)*s11;
 	xl = xl0 = x12 + (l2 / 2.0)*c14;
 	yl = yl0 = x13 - (l2 / 2.0)*s14;
-	flag_r = 0;
-	flag_l = 0;
 }
 
 void Taga1991::y_vec(void)
@@ -187,16 +185,16 @@ void Taga1991:: Feed_vec(void)
 }
 void Taga1991:: uv(void)
 {
-	for (int i = 1; i <= 12; i++) {
-		ud[i] = -u[i];
-		for (int j = 1; j <= 12; j++)
-			ud[i] += w[i][j] * y[j];
+  double sum = 0.0;
 
-		ud[i] = ud[i] - beta*v[i] + u[0] + Feed[i];
-		ud[i] /= tau[i];
+  for (int i = 1; i <= 12; i++) {
+	sum = 0.0;
+	for (int j = 1; j <= 12; j++)
+	  sum += w[i][j] * y[j];
 
-		vd[i] = (-v[i] + y[i]) / taud[i];
-	}
+	ud[i] = (-u[i] + sum - beta*v[i] + u[0] + Feed[i]) / tau[i];
+	vd[i] = (-v[i] + y[i]) / taud[i];
+  }
 }
 void Taga1991:: P_mat(void)
 {
@@ -245,15 +243,15 @@ void Taga1991:: Q_mat(void)
 
 	Q[2] = -g;
 	Q[4] = -g;
-	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk*h(x5 - x11))*(xd5 - xd11) - kk*f(x5 - x11)) / I1;
+	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk* f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
 	Q[7] = -g; // debug
-	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk*h(x8 - x14))*(xd8 - xd14) - kk*f(x8 - x14)) / I1;
+	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk* f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
 	Q[9] =  Fg1 / m2;
 	Q[10] = Fg2 / m2 - g;
-	Q[11] = (-Tr3 - Tr5 -(b2 + bk*h(x5 - x11))*(xd11 - xd5) + kk*f(x5 - x11)) / I2;
+	Q[11] = (-Tr3 - Tr5 -(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11)) / I2;
 	Q[12] = Fg3 / m2;
 	Q[13] = Fg4 / m2 - g;
-	Q[14] = (-Tr4 - Tr6 -(b2 + bk*h(x8 - x14))*(xd14 - xd8) + kk*f(x8 - x14)) / I2;
+	Q[14] = (-Tr4 - Tr6 -(b2 + bk*f(x8 - x14))*(xd14 - xd8) + kk*h(x8 - x14)) / I2;
 }
 void Taga1991:: C_mat(void)
 {
@@ -381,7 +379,6 @@ int Taga1991::next(void)
   double x_esc[15], xd_esc[15];
 
 	// touch ground
-	xrl_vec();
 	if (yr - yg(xr) > 0.0) { xr0 = xr; yr0 = yr; }
 	if (yl - yg(xl) > 0.0) { xl0 = xl; yl0 = yl; }
   
@@ -406,7 +403,6 @@ int Taga1991::next(void)
 		 x[i] += k1[i][2] / 2.0 * dt;
 		xd[i] += k1[i][3] / 2.0 * dt;
 	}
-
 
 	if (!update()) return 0;	// re-calcurate XDD, ud, vd
 

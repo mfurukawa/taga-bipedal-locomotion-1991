@@ -100,11 +100,9 @@ private:
 	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
 	double xr_d, yr_d, xl_d, yl_d;
-	int flag_r, flag_l;
 
 	double ud  [15];
 	double vd  [15];
-
 
 	// C. Feedback pathway
 
@@ -128,6 +126,7 @@ private:
 
 
 	int update(void);
+
 	double f(double x);
 	double h(double x);
 	double yg(double x);
