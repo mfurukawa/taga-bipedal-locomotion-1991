@@ -63,7 +63,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 5.6; // Fig 5A
+	u[0] = 5.5; // Fig 5A
 
 	init();
 }
@@ -106,14 +106,16 @@ void Taga1991::init()
 	flag_l = 0;
 }
 
-int Taga1991::update(void)
+void Taga1991::y_vec(void)
 {
 	// yi is the output of ith neuron 
 	// see also equation (6) 
 
 	for (int i = 1; i <= 12; i++)
 		y[i] = f(u[i]);
-
+}
+void Taga1991::xrl_vec(void)
+{
 	// A. The equations of motion for the bipedal musculo-skeletal system
 
 	// (xr,yr) and (xl, yl) represent the positions of the ankles, which are given by:
@@ -127,42 +129,32 @@ int Taga1991::update(void)
 	yr_d = xd10 - (l2 / 2.0)*c11*xd11; // debugged
 	xl_d = xd12 - (l2 / 2.0)*s14*xd14;
 	yl_d = xd13 - (l2 / 2.0)*c14*xd14; // debugged
-
+}
+void Taga1991:: fg_vec(void)
+{
 	// yg(x) is function which represents the terrain. When the ground is level, yg(x) = 0.
 	// Horizontal and vertical forces on the ankles are given by:
 
 	Fg1 = 0.0; Fg2 = 0.0; Fg3 = 0.0; Fg4 = 0.0;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
 
 	if (yr - yg(xr) < 0.0) {
-	  if(!flag_r) {
-		flag_r = 1;
-	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
-	}
-	else {
-  		xr0 = xr;
-		yr0 = yr;
+	} else {
 		Fg1 = 0.0;
 		Fg2 = 0.0;
-		flag_r = 0;
 	}
 
 	if (yl - yg(xl) < 0.0) {
-	  if(!flag_l) {
-		flag_l = 1;
-	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
-	}
-	else {
-		xl0 = xl;	
-		yl0 = yl; 
+	} else {
 		Fg3 = 0.0;
 		Fg4 = 0.0;
-		flag_l = 0;
 	}
-
+}
+void Taga1991:: Tr_vec(void)
+{
 	// Torques generated at each joint are given by:
 
 	Tr1 = 0.0; Tr2 = 0.0; Tr3 = 0.0; Tr4 = 0.0; Tr5 = 0.0; Tr6 = 0.0;	// Torque
@@ -173,7 +165,9 @@ int Taga1991::update(void)
 	Tr4 = p_ke*y[8] - p_kf*y[7];
 	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
 	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
-
+}
+void Taga1991:: Feed_vec(void)
+{
 	// Feedback pathway
 
 	memset(&Feed[0],0x00,sizeof(Feed));
@@ -190,7 +184,9 @@ int Taga1991::update(void)
 	Feed10 = a6 * (x11 - M_PI_2)*h(Fg2) + a7 * (x14 - M_PI_2)*h(Fg4) + a8 * xd11 * h(Fg2);
 	Feed11 = a6 * (M_PI_2 - x14)*h(Fg4) + a7 * (M_PI_2 - x11)*h(Fg2) - a8 * xd14 * h(Fg4);
 	Feed12 = a6 * (x14 - M_PI_2)*h(Fg4) + a7 * (x11 - M_PI_2)*h(Fg2) + a8 * xd14 * h(Fg4);
-	
+}
+void Taga1991:: uv(void)
+{
 	for (int i = 1; i <= 12; i++) {
 		ud[i] = -u[i];
 		for (int j = 1; j <= 12; j++)
@@ -201,7 +197,9 @@ int Taga1991::update(void)
 
 		vd[i] = (-v[i] + y[i]) / taud[i];
 	}
-
+}
+void Taga1991:: P_mat(void)
+{
 	// P[14][8]
 	// The equations of motion of the bipedal musculo-skeletal system are derivered 
 	// using the Newton-Euler method. All variables and conventions correspond to 
@@ -238,7 +236,9 @@ int Taga1991::update(void)
 
 	P[14][7] = -l2*s14 / 2.0 / I2;
 	P[14][8] = -l2*c14 / 2.0 / I2;
-
+}
+void Taga1991:: Q_mat(void)
+{
 	// Q[14]  feedback etc
 
 	memset(&Q[0],   0x00,sizeof(Q));
@@ -254,7 +254,9 @@ int Taga1991::update(void)
 	Q[12] = Fg3 / m2;
 	Q[13] = Fg4 / m2 - g;
 	Q[14] = (-Tr4 - Tr6 -(b2 + bk*h(x8 - x14))*(xd14 - xd8) + kk*f(x8 - x14)) / I2;
-
+}
+void Taga1991:: C_mat(void)
+{
 	// C[8][14]  constraint
 
 	memset(&C[0][0],0x00,sizeof(C)); 
@@ -270,6 +272,9 @@ int Taga1991::update(void)
 	C[7][8] = -l1*s8 / 2.0;		C[7][14] = -l2*s14 / 2.0;
 	C[8][8] = -l1*c8 / 2.0;		C[8][14] = -l2*c14 / 2.0;
 
+}
+void Taga1991:: D_mat(void)
+{
 	// D[8][1]
 
 	memset(&D[0],         0x00,sizeof(D));     // constraint
@@ -282,7 +287,9 @@ int Taga1991::update(void)
 	D[6] = -(l1*s5*xd52 + l2*s11*xd112) / 2.0;
 	D[7] =  (l1*c8*xd82 + l2*c14*xd142) / 2.0;
 	D[8] = -(l1*s8*xd82 + l2*s14*xd142) / 2.0;
-
+}
+int Taga1991::inv_CP_mat(void)
+{
 	// neuton-eular method - differential equations
 
 	// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
@@ -306,23 +313,31 @@ int Taga1991::update(void)
 
 	if (!gauss_jordan(8, inv_CP, b)) return 0;
 
+	return 1;
+}
+void Taga1991::xdd_vec(void)
+{
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	
 	memset(&CQ[0],        0x00,sizeof(CP)); 
-	memset(&DCQ[0],       0x00,sizeof(DCQ)); 
-	memset(&Pinv_CP[0][0],0x00,sizeof(Pinv_CP)); 
 
 	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;
 		for (int i = 1; i <= 14; i++)
 		  CQ[j] += C[j][i] * Q[i];
 	}
+
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
+
+	memset(&DCQ[0],       0x00,sizeof(DCQ)); 
+
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
 
 	// (inv_CP)D[8][1] = inv_CP[8][8] , DCQ[8][1] 
-	double inv_CP_D[9];
+
+	double inv_CP_D[9] = {};
+
 	for (int k = 1; k <= 8; k++) {
 	  inv_CP_D[k] = 0.0;
 	  for (int i = 1; i <= 8; i++) 
@@ -336,8 +351,22 @@ int Taga1991::update(void)
 			xdd[j] += P[j][i] * inv_CP_D[i];
 		xdd[j] += Q[j];
 	}
-
-	return 1;
+}
+int Taga1991::update(void)
+{
+  y_vec();
+  xrl_vec();
+  P_mat();
+  C_mat();
+  D_mat();
+  fg_vec();
+  Tr_vec();
+  Q_mat();
+  Feed_vec();
+  if(!inv_CP_mat()) return 0;
+  xdd_vec();
+  uv();
+  return 1;
 }
 
 int Taga1991::next(void)
@@ -350,6 +379,11 @@ int Taga1991::next(void)
   // escape current state 
   double u_esc[15], v_esc[15];
   double x_esc[15], xd_esc[15];
+
+	// touch ground
+	xrl_vec();
+	if (yr - yg(xr) > 0.0) { xr0 = xr; yr0 = yr; }
+	if (yl - yg(xl) > 0.0) { xl0 = xl; yl0 = yl; }
   
 	if(!update()) return 0;	// calcurate XDD, ud, vd	
 
@@ -416,6 +450,7 @@ int Taga1991::next(void)
 		x[i] =  x_esc[i] + ((k1[i][2] + 2.0*k2[i][2] + 2.0*k3[i][2] + k4[i][2]) / 6.0 ) * dt; 
 	   xd[i] = xd_esc[i] + ((k1[i][3] + 2.0*k2[i][3] + 2.0*k3[i][3] + k4[i][3]) / 6.0 ) * dt; 
 	}
+
 	return 1;
 }
 int Taga1991::dump(void) 
@@ -438,8 +473,7 @@ Taga1991::~Taga1991()
 
 double Taga1991::f(double x)  
 {
-  if (x<=0.0) return 0.0; // max(0,x);
-  else return x; 
+  return fmax(0,x);
 } 
 
 double Taga1991::h(double x) 
@@ -450,7 +484,7 @@ double Taga1991::h(double x)
 
 double Taga1991::yg(double x) 
 {
-  return x*0.00;//0.0; 
+  return 0.0;
 }
 
 

@@ -97,7 +97,6 @@ private:
 	double CQ[9]   ; 
 	double DCQ[9]  ; 
 	double CP[9][9];
-	double Pinv_CP[15][9]; 
 	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
 	double xr_d, yr_d, xl_d, yl_d;
@@ -132,6 +131,19 @@ private:
 	double f(double x);
 	double h(double x);
 	double yg(double x);
+
+	void y_vec(void);
+	void xrl_vec(void);
+	void fg_vec(void);
+	void Tr_vec(void);
+	void Feed_vec(void);
+	void uv(void);
+	void P_mat(void);
+	void Q_mat(void);
+	void C_mat(void);
+	void D_mat(void);
+	int  inv_CP_mat(void);
+	void xdd_vec(void);
 
 public:
 	// feedback
