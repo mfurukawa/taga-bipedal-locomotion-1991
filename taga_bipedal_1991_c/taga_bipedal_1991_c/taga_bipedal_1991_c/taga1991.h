@@ -82,54 +82,55 @@ private:
 
 	// A. The equations of motion for the bipedal musculo-skeletal system
 
-	double Fg1, Fg2, Fg3, Fg4;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
-	double Tr1, Tr2, Tr3, Tr4, Tr5, Tr6;	// Torque
+	long double Fg1, Fg2, Fg3, Fg4;				        // Horizontal and vertical forces on the ankles. See Fig. 12.
+	long double Tr1, Tr2, Tr3, Tr4, Tr5, Tr6;	// Torque
 
-	double xd [15];
-	double xdd[15];
-	double y  [15]; // the output of the i-th neuron. (6)
+	long double xd [15];
+	long double xdd[15];
+	long double y  [15]; // the output of the i-th neuron. (6)
 
 	// Newton-Eular method
-	double P[15][9]; // position
-	double Q[15]   ;    // feedback etc
-	double C[9][15]; // constraint
-	double D[9]    ;     // constraint
-	double CQ[9]   ; 
-	double DCQ[9]  ; 
-	double CP[9][9];
-	double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
+	long double P[15][9]; // position
+	long double Q[15]   ;    // feedback etc
+	long double C[9][15]; // constraint
+	long double D[9]    ;     // constraint
+	long double CQ[9]   ; 
+	long double DCQ[9]  ; 
+	long double CP[9][9];
+	long double inv_CP[9][GAUSS_JORDAN_MAXN + 10], b[9];
 	
-	double xr_d, yr_d, xl_d, yl_d;
+	long double xr_d, yr_d, xl_d, yl_d;
 
-	double ud  [15];
-	double vd  [15];
+	long double ud  [15];
+	long double vd  [15];
 
 	// C. Feedback pathway
 
 	// Feedback signals from the musculo-skeletal system to the neural rhythm generetor are given by:
 
-	double Feed[13];
+	long double Feed[13];
 
 	// D. Simlumation Parameters
 
 	// Musculo-skeletal system
 
-	double m1, m2;
-	double l1, l2;
-	double I1, I2;
+	long double m1, m2;
+	long double l1, l2;
+	long double I1, I2;
 	
 	// neural rhythm generator
 
-	double beta;
-	double w[13][13];  // a connecting weight
-	double w_fe, w_rl, w_hka;
+	long double beta;
+	long double w[13][13];  // a connecting weight
+	long double w_fe, w_rl, w_hka;
 
 
 	int update(void);
 
-	double f(double x);
-	double h(double x);
-	double yg(double x);
+	long double f(long double x);
+	long double h(long double x);
+	long double yg(long double x);
+	long double lfabs(long double x);
 
 	void y_vec(void);
 	void xrl_vec(void);
@@ -146,17 +147,17 @@ private:
 
 public:
 	// feedback
-	double a[9];
+	long double a[9];
 
-	double tau [13]; // time constants of the inner state
-	double taud[13]; // the adaptation effect
-	double b1, b2;
-	double dt;
-	double x  [15];
-	double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
-	double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae;
-	double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
-	double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+	long double tau [13]; // time constants of the inner state
+	long double taud[13]; // the adaptation effect
+	long double b1, b2;
+	long double dt;
+	long double x  [15];
+	long double xr, yr, xl, yl, xr0, yr0, xl0, yl0;
+	long double M, bk, kk, g, kg, bg, p_hf, p_he, p_kf, p_ke, p_af, p_ae;
+	long double u   [15]; // the inner state of the i-th neuron. u0 is an external input with a constant rate
+	long double v   [15]; // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
 
 	Taga1991();
 	~Taga1991();

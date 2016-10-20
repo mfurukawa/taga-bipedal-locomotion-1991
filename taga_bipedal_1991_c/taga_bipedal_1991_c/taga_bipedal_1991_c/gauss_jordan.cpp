@@ -14,11 +14,11 @@
 #include <math.h>
 #include "gauss_jordan.h"
 
-int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]) {
+int gauss_jordan(int n, long double a[][GAUSS_JORDAN_MAXN + 10], long double b[]) {
 
 	int ipv, i, j;
-	double inv_pivot, temp;
-	double big;
+	long double inv_pivot, temp;
+	long double big;
 	int pivot_row, row[GAUSS_JORDAN_MAXN + 10];
 	
 	for (ipv = 1; ipv <= n; ipv++) {
@@ -26,8 +26,8 @@ int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]) {
 		// search maximum value
 		big = 0.0;
 		for (i = ipv; i <= n; i++) {
-			if (fabs(a[i][ipv]) > big) {
-				big = fabs(a[i][ipv]);
+			if (lfabs(a[i][ipv]) > big) {
+				big = lfabs(a[i][ipv]);
 				pivot_row = i;
 			}
 		}
@@ -81,4 +81,10 @@ int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]) {
 	}
 
 	return 1;
+}
+
+long double lfabs(long double x)
+{
+  if (x > 0.0) return x; 
+  else return -x; 
 }

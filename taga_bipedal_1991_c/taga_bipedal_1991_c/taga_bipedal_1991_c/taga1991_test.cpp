@@ -37,7 +37,7 @@ int main() {
 		  taga1991.u[0] = 5.5;
 		  for(int j = 5; j<=12; j++) taga1991.taud[j] = (double)i/(double)2000000.0 + 0.03;
 		  //for(int j = 1; j<=4; j++) taga1991.taud[j] = (double)i/(double)100000.0 + 0.5;
-		  fprintf(stderr, "\nparam %lf", taga1991.taud[12]); 
+		  fprintf(stderr, "\nparam %Lf", taga1991.taud[12]); 
 
  		  t=0.0;
 		}
@@ -46,10 +46,10 @@ int main() {
 		printf("% 1.8lf,", t);
 
 		// link position and orientation : 2-15
-		for(int i=1; i<=14; i++) printf("% 3.10lf,", taga1991.x[i]);
+		for(int i=1; i<=14; i++) printf("% 3.10Lf,", taga1991.x[i]);
 
 		// ankle position : 16-23
-		printf("% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,% 3.10lf,",
+		printf("% 3.10Lf,% 3.10Lf,% 3.10Lf,% 3.10Lf,% 3.10Lf,% 3.10Lf,% 3.10Lf,% 3.10Lf,",
 			   taga1991.xr0,
 			   taga1991.xr,
 			   taga1991.yr0,
@@ -60,7 +60,7 @@ int main() {
 			   taga1991.yl);
 
 		// neural rythm generator : 24-35
-		for(int i=1; i<=12; i++) printf("% 3.10lf,", taga1991.u[i]);
+		for(int i=1; i<=12; i++) printf("% 3.10Lf,", taga1991.u[i]);
 
 		printf("\n");
 

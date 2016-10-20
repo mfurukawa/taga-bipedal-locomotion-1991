@@ -14,4 +14,5 @@
 
 #define GAUSS_JORDAN_MAXN 8
 
-int gauss_jordan(int n, double a[][GAUSS_JORDAN_MAXN + 10], double b[]);
+int gauss_jordan(int n, long double a[][GAUSS_JORDAN_MAXN + 10], long double b[]);
+long double lfabs(long double x);

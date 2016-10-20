@@ -31,7 +31,7 @@ Taga1991::Taga1991()
 	kg = 10000.0; bg = 1000.0;
 	p_hf = 15.0;  p_he = 85.0;  
 	p_kf = 15.0;  p_ke = 15.0;  
-	p_af = 10.0;  p_ae = 124.0;
+	p_af = 10.0;  p_ae = 123.0;
 
 	// dt is time division in second
 	dt = 0.0001;
@@ -185,7 +185,7 @@ void Taga1991:: Feed_vec(void)
 }
 void Taga1991:: uv(void)
 {
-  double sum = 0.0;
+  long double sum = 0.0;
 
   for (int i = 1; i <= 12; i++) {
 	sum = 0.0;
@@ -243,9 +243,9 @@ void Taga1991:: Q_mat(void)
 
 	Q[2] = -g;
 	Q[4] = -g;
-	Q[5] = (Tr1 + Tr3 - b1*fabs(x5 - M_PI_2)*xd5 - (b2 + bk* f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
+	Q[5] = (Tr1 + Tr3 - b1*lfabs(x5 - M_PI_2)*xd5 - (b2 + bk* f(x5 - x11))*(xd5 - xd11) - kk*h(x5 - x11)) / I1;
 	Q[7] = -g; // debug
-	Q[8] = (Tr2 + Tr4 - b1*fabs(x8 - M_PI_2)*xd8 - (b2 + bk* f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
+	Q[8] = (Tr2 + Tr4 - b1*lfabs(x8 - M_PI_2)*xd8 - (b2 + bk* f(x8 - x14))*(xd8 - xd14) - kk*h(x8 - x14)) / I1;
 	Q[9] =  Fg1 / m2;
 	Q[10] = Fg2 / m2 - g;
 	Q[11] = (-Tr3 - Tr5 -(b2 + bk*f(x5 - x11))*(xd11 - xd5) + kk*h(x5 - x11)) / I2;
@@ -334,7 +334,7 @@ void Taga1991::xdd_vec(void)
 
 	// (inv_CP)D[8][1] = inv_CP[8][8] , DCQ[8][1] 
 
-	double inv_CP_D[9] = {};
+	long double inv_CP_D[9] = {};
 
 	for (int k = 1; k <= 8; k++) {
 	  inv_CP_D[k] = 0.0;
@@ -370,13 +370,13 @@ int Taga1991::update(void)
 int Taga1991::next(void)
 {
   // Runge Kutta Method coefficient
-  double k1[15][4];
-  double k2[15][4];
-  double k3[15][4];
-  double k4[15][4];
+  long double k1[15][4];
+  long double k2[15][4];
+  long double k3[15][4];
+  long double k4[15][4];
   // escape current state 
-  double u_esc[15], v_esc[15];
-  double x_esc[15], xd_esc[15];
+  long double u_esc[15], v_esc[15];
+  long double x_esc[15], xd_esc[15];
 
 	// touch ground
 	if (yr - yg(xr) > 0.0) { xr0 = xr; yr0 = yr; }
@@ -455,11 +455,11 @@ int Taga1991::dump(void)
 
   printf("\n\tx[14]\t\txd[14]\t\txdd[14]\n\n");	
   for (int i = 1; i <= 14; i++)
- 	printf("\t % 1.1e\t % 1.1e\t % 1.1e\n", x[i], xd[i], xdd[i]);
+ 	printf("\t % 1.1Lf\t % 1.1Lf\t % 1.1Lf\n", x[i], xd[i], xdd[i]);
 
   printf("\n\tu[12]\t\tud[12]\t\tv[12]\t\tvd[12]\n\n");	
   for (int i = 1; i <= 12; i++)
- 	printf("\t% 1.1e\t% 1.1e\t % 1.1e\t% 1.1e\n", u[i], ud[i], v[i], vd[i]);
+ 	printf("\t% 1.1Lf\t% 1.1Lf\t % 1.1Lf\t% 1.1Lf\n", u[i], ud[i], v[i], vd[i]);
   return 1;
 }
 
@@ -467,20 +467,25 @@ Taga1991::~Taga1991()
 {
 }
 
-double Taga1991::f(double x)  
+long double Taga1991::f(long double x)  
 {
   return fmax(0,x);
 } 
 
-double Taga1991::h(double x) 
+long double Taga1991::h(long double x) 
 {
   if (x > 0.0) return 1.0; 
   else return 0.0; 
 }
 
-double Taga1991::yg(double x) 
+long double Taga1991::yg(long double x) 
 {
   return 0.0;
 }
 
 
+long double Taga1991::lfabs(long double x)
+{
+  if (x > 0.0) return x; 
+  else return -x; 
+}
