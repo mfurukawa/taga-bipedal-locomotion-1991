@@ -34,20 +34,20 @@ Taga1991::Taga1991()
 	kg = 10000.0; bg = 1000.0;
 	p_hf = 15.0;  p_he = 85.0;  
 	p_kf = 15.0;  p_ke = 15.0;  
-	p_af = 58.95;  p_ae = 171.7; // 200
+	p_af = 69.915;  p_ae = 149.0; // 200
 
 	// dt is time division in second
-	dt = 0.0002;
+	dt = 0.0001;
 
 	// neural rhythm generator
 
 	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
 	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
 
-	tau [1] = tau [2] = tau [3] = tau [4] = 0.0895;
+	tau [1] = tau [2] = tau [3] = tau [4] = 0.086449;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
-	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = tau [1] / 2.0;//0.025;
-	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = taud[1] / 2.0;//0.30;
+	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = tau[1]/2.0;
+	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = taud[1]/2.0;
 	beta = 2.5;
 
 	// D. Simlumation Parameters
@@ -66,7 +66,7 @@ Taga1991::Taga1991()
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
-	u[0] = 8.3; // Fig 5A
+	u[0] = 5.7; // Fig 5A
 
 	init();
 }
@@ -188,9 +188,9 @@ int Taga1991::update(void)
 
 	if (yr - yg(xr) < 0.0) {
 	  if(!flag_r) {
+		flag_r = 1;
 		xr0 = xr;
 		yr0 = yr;
-		flag_r = 1;
 	  }
 	    Fg1 = -kg*(xr - xr0) - bg*xr_d;
 		Fg2 = -kg*(yr - yr0) + bg*f(-yr_d);
@@ -203,9 +203,9 @@ int Taga1991::update(void)
 
 	if (yl - yg(xl) < 0.0) {
 	  if(!flag_l) {
+		flag_l = 1;
 		xl0 = xl;	
 		yl0 = yl; 
-		flag_l = 1;
 	  }
 		Fg3 = -kg*(xl - xl0) - bg*xl_d;
 		Fg4 = -kg*(yl - yl0) + bg*f(-yl_d);
@@ -222,8 +222,8 @@ int Taga1991::update(void)
 	Tr2 = p_he*y[4] - p_hf*y[3];
 	Tr3 = p_ke*y[6] - p_kf*y[5];
 	Tr4 = p_ke*y[8] - p_kf*y[7];
-	Tr5 = 0;//(p_ae*y[10] - p_af*y[9]) *h(Fg2);
-	Tr6 = 0;//(p_ae*y[12] - p_af*y[11])*h(Fg4);
+	Tr5 = (p_ae*y[10] - p_af*y[9]) *h(Fg2);
+	Tr6 = (p_ae*y[12] - p_af*y[11])*h(Fg4);
 
 	// Feedback pathway
 
@@ -390,80 +390,38 @@ int Taga1991::update(void)
 	}
 #endif
 
-	// Pinv_CP[14][8] = P[14][8], inv_CP[8][8] | product P(x){C(x)P(x)}^-1  
-	for (int k = 1; k <= 14; k++) { 			// row idx for CP
-		for (int j = 1; j <= 8; j++) {			// col idx for CP
-			Pinv_CP[k][j] = 0.0;
-			for (int i = 1; i <= 8; i++) {
-				Pinv_CP[k][j] += P[k][i] * inv_CP[i][j]; // NOTICE!! inv_CP's index number starts from '1'!
-			}
-		}
-	}
-
-		//printf("\n\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8]\n\n");
-		//for (int k = 1; k <= 14; k++)
-		//	for (int j = 1; j <= 8; j++)
-		//		printf("%4.2e\t", Pinv_CP[k][j]);
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) \n\n");
-#endif
-
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
-	for (int j = 1; j <= 8; j++) { 				// row idx for CP
+	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;
-		for (int i = 1; i <= 14; i++){
+		for (int i = 1; i <= 14; i++)
 		  CQ[j] += C[j][i] * Q[i];
-
-#ifdef __DUMP_MATRIX__TAGA1991__
-		  printf("\t\tCQ[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, CQ[j], C[j][i] , Q[i]);
-#endif
-		}
 	}
-
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  \n\n");
-		  printf("\tDCQ[8][1] = \tD[8][1]   - \tCQ[8][1] \n\n");
-		for (int j = 1; j <= 8; j++)
-		  printf("\t% 4.2e\t% 4.2e\t% 4.2e\n", DCQ[j], D[j], CQ[j]);
+	// (inv_CP)D[8][1] = inv_CP[8][8] , DCQ[8][1] 
+	double inv_CP_D[9];
+	for (int k = 1; k <= 8; k++) {
+	  inv_CP_D[k] = 0.0;
+	  for (int i = 1; i <= 8; i++) 
+		inv_CP_D[k] += inv_CP[k][i] * DCQ[i];
+	}
 
-		printf("\n [DEBUG] XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))\n\n");
-#endif
-
-	// XDD[14][1] = Pinv_CP[14][8] * DCQ[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
-	for (int j = 1; j <= 14; j++) { 				// row idx for CP
+	// XDD[14][1] = P[14][8] * (inv_CP)D[8][1] + Q[14][1] | product P(x){C(x)P(x)}^-1 {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))} + Q(x,xd,Tr(y),Fg(x,xd))
+	for (int j = 1; j <= 14; j++) {
 		xdd[j] = Q[j];
-		for (int i = 1; i <= 8; i++){
-			xdd[j] += Pinv_CP[j][i] * DCQ[i];
-#ifdef __DUMP_MATRIX__TAGA1991__
-			printf("\t\txdd[%d(%d)] = % 4.2e : +=% 4.4e * % 4.4e\n", j, i, xdd[j], Pinv_CP[j][i] , DCQ[i]);
-#endif
-		}
+		for (int i = 1; i <= 8; i++)
+			xdd[j] += P[j][i] * inv_CP_D[i];
 	}
 
-#ifdef __DUMP_MATRIX__TAGA1991__
-	printf("\n [DEBUG] int Taga1991::update(void)  >  Pinv_CP[14][8] \n\n");
-	for (int k = 1; k <= 14; k++) {
-	  for (int j = 1; j <= 8; j++)
-		printf("\t% 1.0e", Pinv_CP[k][j]);
-	  printf("\n");
-	}
-
-	printf("\n[DEBUG] return update()\n\n\n\n\n\n");
-#endif
-
-	//exit(1);
 	return 1;
 }
 
 int Taga1991::next(void)
 {
   // Runge Kutta Method coefficient
-  double k1[15][2]; // [4] means twice diferentiated x+ u + v
+  double k1[15][2];
   double k2[15][2];
   double k3[15][2];
   double k4[15][2];
@@ -472,7 +430,6 @@ int Taga1991::next(void)
   double u_esc[15], v_esc[15];
   double x_esc[15], xd_esc[15];
   
-	 
 #ifdef __DUMP_MATRIX__TAGA1991__
 	printf("\n[DEBUG] just entered next()");
 	dump();
@@ -641,7 +598,7 @@ double Taga1991::h(double x)
 
 double Taga1991::yg(double x) 
 {
-  return 0.0; 
+  return x*0.00;//0.0; 
 }
 
 
