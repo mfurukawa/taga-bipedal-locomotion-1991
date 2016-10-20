@@ -44,7 +44,7 @@ Taga1991::Taga1991()
 	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
 	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
 
-	tau [1] = tau [2] = tau [3] = tau [4] = 0.08645;
+	tau [1] = tau [2] = tau [3] = tau [4] = 0.086449;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
 	tau [5] = tau [6] = tau [7] = tau [8] = tau [9] = tau [10] = tau [11] = tau [12] = tau[1]/2.0;
 	taud[5] = taud[6] = taud[7] = taud[8] = taud[9] = taud[10] = taud[11] = taud[12] = taud[1]/2.0;
