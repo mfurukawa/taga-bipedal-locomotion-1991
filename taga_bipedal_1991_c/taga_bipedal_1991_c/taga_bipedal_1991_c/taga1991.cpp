@@ -34,7 +34,7 @@ Taga1991::Taga1991()
 	p_af = 10.0;  p_ae = 124.0;
 
 	// dt is time division in second
-	dt = 0.0001;
+	dt = 0.00001;
 
 	// neural rhythm generator
 

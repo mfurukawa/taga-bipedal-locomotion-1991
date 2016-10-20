@@ -21,7 +21,7 @@ int main() {
 	Taga1991 taga1991;
 	double t = 0.0;
 
-	for (int i = 0; i < 300000; i++) 
+	for (int i = 0; i < 3000000; i++) 
 	{
 
 		if(taga1991.x[2] <= -2){ 
