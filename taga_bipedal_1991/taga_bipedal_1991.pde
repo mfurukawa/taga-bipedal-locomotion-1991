@@ -12,7 +12,7 @@ int index = 0;
 int stp = 0;
 boolean flag = false;
 
-double speed_scale = 2.0;
+double speed_scale = 0.3;
 
 void setup() {
   size(1400, 200);
