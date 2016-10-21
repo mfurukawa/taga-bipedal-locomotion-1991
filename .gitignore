@@ -8,3 +8,17 @@ application.macosx
 *.opendb
 *.idb
 *.ipdb
+*.o
+*.csv
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/x64/Release/gauss_jordan.nativecodeanalysis.xml
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/x64/Release/taga1991.nativecodeanalysis.xml
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/x64/Release/taga1991_test.nativecodeanalysis.xml
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/x64/Release/vc.nativecodeanalysis.all.xml
+taga_bipedal_1991_c/taga_bipedal_1991_c/x64/Release/taga_bipedal_1991_c.exe.lastcodeanalysissucceeded
+taga_bipedal_1991_processing_win/application.linux-armv6hf/lib/gluegen-rt-natives-linux-armv6hf.jar
+taga_bipedal_1991_processing_win/application.linux-armv6hf/lib/jogl-all-natives-linux-armv6hf.jar
+taga_bipedal_1991_processing_win/application.linux-armv6hf/lib/taga_bipedal_1991_processing_win.jar
+taga_bipedal_1991_processing_win/application.linux-armv6hf/source/taga_bipedal_1991_processing_win.java
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/img1.ai
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/img1.eps
+taga_bipedal_1991_processing_win/data/positions.txt
