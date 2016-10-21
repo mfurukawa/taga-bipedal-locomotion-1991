@@ -50,7 +50,7 @@ Taga1991::Taga1991()
 	// D. Simlumation Parameters
 	// neural rhythm generator
 
-	memset(&w[0][0],0x00,sizeof(w));  // a connecting weight
+	memset(w,0x00,sizeof(w));  // a connecting weight
 
 	w[1][2] = w[2][1] = w[3][4] = w[4][3] = w[5][6] = w[6][5] = w[7][8] = w[8][7] = w[9][10] = w[10][9] = w[11][12] = w[12][11] = w_fe = -2.0;
 	w[1][3] = w[3][1] = w[2][4] = w[4][2] = w_rl = -1.0;
@@ -203,7 +203,7 @@ void Taga1991:: P_mat(void)
 	// using the Newton-Euler method. All variables and conventions correspond to 
 	// those shown in Fig.2 and Fig. 12.
 
-	memset(&P[0][0],0x00,sizeof(P)); 
+	memset(&P,0x00,sizeof(P)); 
 
 	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
 	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
@@ -257,7 +257,7 @@ void Taga1991:: C_mat(void)
 {
 	// C[8][14]  constraint
 
-	memset(&C[0][0],0x00,sizeof(C)); 
+	memset(&C,0x00,sizeof(C)); 
 
 	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
@@ -292,8 +292,8 @@ int Taga1991::inv_CP_mat(void)
 
 	// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
 	
-	memset(&CP[0][0],     0x00,sizeof(CP));
-	memset(&inv_CP[0][0], 0x00,sizeof(inv_CP));
+	memset(&CP,     0x00,sizeof(CP));
+	memset(&inv_CP, 0x00,sizeof(inv_CP));
 
 	for (int k = 1; k <= 8; k++) { 				// row idx for CP
 		for (int j = 1; j <= 8; j++) {			// col idx for CP
@@ -317,7 +317,7 @@ void Taga1991::xdd_vec(void)
 {
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	
-	memset(&CQ[0],        0x00,sizeof(CP)); 
+	memset(&CQ,        0x00,sizeof(CP)); 
 
 	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;

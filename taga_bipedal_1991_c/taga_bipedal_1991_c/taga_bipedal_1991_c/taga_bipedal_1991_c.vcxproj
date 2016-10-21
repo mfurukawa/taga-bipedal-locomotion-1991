@@ -68,7 +68,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -103,13 +106,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_c\taga_bipedal_1991_c\x64\Release\taga_bipedal_1991_c.exe &gt; out.csv
+      <Command>C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_c\taga_bipedal_1991_c\x64\Release\taga_bipedal_1991_c.exe &gt; C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_c\taga_bipedal_1991_c\x64\Release\out.csv
 C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_processing_win\application.windows64\taga_bipedal_1991_processing_win.exe</Command>
     </PostBuildEvent>
     <PostBuildEvent>
