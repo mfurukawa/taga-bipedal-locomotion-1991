@@ -38,8 +38,8 @@ Taga1991::Taga1991()
 
 	// neural rhythm generator
 
-	memset(&tau [0],0x00,sizeof(tau)); // time constants of the inner state
-	memset(&taud[0],0x00,sizeof(taud)); // the adaptation effect
+	memset(tau ,0x00,sizeof(tau)); // time constants of the inner state
+	memset(taud,0x00,sizeof(taud)); // the adaptation effect
 
 	tau [1] = tau [2] = tau [3] = tau [4] = 0.05;
 	taud[1] = taud[2] = taud[3] = taud[4] = 0.60;
@@ -58,29 +58,30 @@ Taga1991::Taga1991()
 
 	// feedback
 
-	memset(&a,0x00,sizeof(a));
+	memset(a,0x00,sizeof(a));
 
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
 	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
 
+	init();
+
 	u[0] = 5.5; // Fig 5A
 
-	init();
 }
 void Taga1991::init()
 {
-  memset(&u[1] ,0x00,sizeof(u)-1); // the inner state of the i-th neuron. u0 is an external input with a constant rate
-  memset(&ud[0],0x00,sizeof(ud));
-  memset(&v[0] ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
-  memset(&vd[0],0x00,sizeof(vd));
+  memset(u ,0x00,sizeof(u)); // the inner state of the i-th neuron. u0 is an external input with a constant rate
+  memset(ud,0x00,sizeof(ud));
+  memset(v ,0x00,sizeof(v)); // a variable represeinting the degree of the adaptation or self-inhibition effect of the i-th neuron 
+  memset(vd,0x00,sizeof(vd));
 
 
   // E. Initial condotion
 
-  memset(&  x[0], 0x00,sizeof(x));
-  memset(& xd[0], 0x00,sizeof(xd));
-  memset(&xdd[0], 0x00,sizeof(xdd));
-  memset(&  y[0], 0x00,sizeof(y)); // the output of the i-th neuron. (6)
+  memset(  x, 0x00,sizeof(x));
+  memset( xd, 0x00,sizeof(xd));
+  memset(xdd, 0x00,sizeof(xdd));
+  memset(  y, 0x00,sizeof(y)); // the output of the i-th neuron. (6)
 
 	x1 = 0.0;
 	x2 = 1.09;
@@ -168,7 +169,7 @@ void Taga1991:: Feed_vec(void)
 {
 	// Feedback pathway
 
-	memset(&Feed[0],0x00,sizeof(Feed));
+	memset(Feed,0x00,sizeof(Feed));
 
 	Feed1 = a1 * (x5 - M_PI_2) - a2 * (x8 - M_PI_2) + a3 * (x11 - M_PI_2)*h(Fg2) + a4 * h(Fg4);
 	Feed2 = a1 * (M_PI_2 - x5) - a2 * (M_PI_2 - x8) + a3 * (M_PI_2 - x11)*h(Fg2) + a4 * h(Fg4);
@@ -203,7 +204,7 @@ void Taga1991:: P_mat(void)
 	// using the Newton-Euler method. All variables and conventions correspond to 
 	// those shown in Fig.2 and Fig. 12.
 
-	memset(&P,0x00,sizeof(P)); 
+	memset(P,0x00,sizeof(P)); 
 
 	P[1][1] = 1.0 / M;		P[1][3] = 1.0 / M;
 	P[2][2] = 1.0 / M;		P[2][4] = 1.0 / M;
@@ -239,7 +240,7 @@ void Taga1991:: Q_mat(void)
 {
 	// Q[14]  feedback etc
 
-	memset(&Q[0],   0x00,sizeof(Q));
+	memset(Q,0x00,sizeof(Q));
 
 	Q[2] = -g;
 	Q[4] = -g;
@@ -257,7 +258,7 @@ void Taga1991:: C_mat(void)
 {
 	// C[8][14]  constraint
 
-	memset(&C,0x00,sizeof(C)); 
+	memset(C,0x00,sizeof(C)); 
 
 	C[1][1] = C[2][2] = C[3][1] = C[4][2] = C[5][3] = C[6][4]  = C[7][6]  = C[8][7]  =  1.0;
 	C[1][3] = C[2][4] = C[3][6] = C[4][7] = C[5][9] = C[6][10] = C[7][12] = C[8][13] = -1.0;
@@ -275,7 +276,7 @@ void Taga1991:: D_mat(void)
 {
 	// D[8][1]
 
-	memset(&D[0],         0x00,sizeof(D));     // constraint
+	memset(D,0x00,sizeof(D));     // constraint
 
 	D[1] =   l1*c5*xd52 / 2.0;
 	D[2] =  -l1*s5*xd52 / 2.0;
@@ -292,8 +293,8 @@ int Taga1991::inv_CP_mat(void)
 
 	// CP[8][8] = C[8][14] * P[14][8] | product C(x)P(x) 
 	
-	memset(&CP,     0x00,sizeof(CP));
-	memset(&inv_CP, 0x00,sizeof(inv_CP));
+	memset(CP,     0x00,sizeof(CP));
+	memset(inv_CP, 0x00,sizeof(inv_CP));
 
 	for (int k = 1; k <= 8; k++) { 				// row idx for CP
 		for (int j = 1; j <= 8; j++) {			// col idx for CP
@@ -317,7 +318,7 @@ void Taga1991::xdd_vec(void)
 {
 	// CQ[8][1] = C[8][14] * Q[14][1] | product C(x)Q(x,xd,Tr(y),Fg(x,xd)) 
 	
-	memset(&CQ,        0x00,sizeof(CP)); 
+	memset(CQ,0x00,sizeof(CQ)); 
 
 	for (int j = 1; j <= 8; j++) {
 		CQ[j] = 0.0;
@@ -327,7 +328,7 @@ void Taga1991::xdd_vec(void)
 
 	// DCQ[8][1] = D[8][1] - CQ[8][1] | subtruct {D(x,xd) - C(x)Q(x,xd,Tr(y),Fg(x,xd))}
 
-	memset(&DCQ[0],       0x00,sizeof(DCQ)); 
+	memset(DCQ,0x00,sizeof(DCQ)); 
 
 	for (int i = 1; i <= 8; i++)
 		DCQ[i] = D[i] - CQ[i];
