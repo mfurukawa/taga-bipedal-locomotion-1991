@@ -108,6 +108,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_c\taga_bipedal_1991_c\x64\Release\taga_bipedal_1991_c.exe &gt; out.csv
+C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_processing_win\application.windows64\taga_bipedal_1991_processing_win.exe</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>generate csv file </Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="gauss_jordan.h" />

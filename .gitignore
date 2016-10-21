@@ -8,3 +8,8 @@ application.macosx
 *.opendb
 *.idb
 *.ipdb
+*.o
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/img1.eps
+*.ai
+taga_bipedal_1991_c/taga_bipedal_1991_c/taga_bipedal_1991_c/out.csv
+taga_bipedal_1991_c/taga_bipedal_1991_c/Debug/out.csv

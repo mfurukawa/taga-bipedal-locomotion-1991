@@ -21,7 +21,7 @@ void setup() {
   stroke(0);
   strokeWeight(2);
   frameRate(60);
-  lines = loadStrings("C:\Users\furukawa\Documents\taga-bipedal-locomotion-1991\taga_bipedal_1991_c\taga_bipedal_1991_c\taga_bipedal_1991_c\out.csv");
+  lines = loadStrings("C:\\Users\\furukawa\\Documents\\taga-bipedal-locomotion-1991\\taga_bipedal_1991_c\\taga_bipedal_1991_c\\Debug\\out.csv");
 
   String[] pieces;
   pieces = split(lines[0], ','); double t0 = float(pieces[0]); //println(t0);
