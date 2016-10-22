@@ -34,7 +34,7 @@ Taga1991::Taga1991()
 	p_af = 10.0;  p_ae = 124.0;
 
 	// dt is time division in second
-	dt = 0.00001;
+	dt = 0.00005;
 
 	// neural rhythm generator
 
@@ -61,7 +61,7 @@ Taga1991::Taga1991()
 	memset(a,0x00,sizeof(a));
 
 	a[1] = 1.5;  a[2] = 1.0;  a[3] = 1.5;  a[4] = 1.5;
-	a[5] = 3.0;  a[6] = 1.5;  a[7] = 3.0;  a[8] = 1.5;
+	a[5] = 3.0;  a[6] = 6.0;  a[7] = 12.0;  a[8] = 1.5;
 
 	init();
 
@@ -481,7 +481,7 @@ double Taga1991::h(double x)
 
 double Taga1991::yg(double x) 
 {
-  return 0.0;
+  return x*0.0;
 }
 
 

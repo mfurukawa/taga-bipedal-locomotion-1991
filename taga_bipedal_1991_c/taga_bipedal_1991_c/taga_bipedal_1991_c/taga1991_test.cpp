@@ -29,7 +29,12 @@ int main() {
 		  exit(0); 
 		}
 
-		if(t>=10){ 
+		if(t<3)taga1991.u[0] = 5.5 ;
+		else if(3 <= t && t <4) taga1991.u[0] = 5.5 + (8.0 - 5.5)*(t-3)/1.0;
+		else   taga1991.u[0] = 8.0 ; //+  (t-4) * 2.0   ;
+
+
+		if(t>=20){ 
 		  fprintf(stderr, "\nsimulation time finished[i] : %d\n",i); 
 		  exit(1);
 		  i--;
