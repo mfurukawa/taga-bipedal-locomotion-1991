@@ -65,7 +65,7 @@ Taga1991::Taga1991()
 
 	init();
 
-	u[0] = 5.5; // Fig 5A
+	u[0] = 3.5; // Fig 5A
 
 }
 void Taga1991::init()
